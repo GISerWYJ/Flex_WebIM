@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  implements="net.lanelife.framework.app.IApp"
+		  width="100%" height="100%">
+	
+	<fx:Script>
+		<![CDATA[
+			import net.lanelife.cat77.WebIM;
+			import net.lanelife.framework.cw.Alert;
+			
+			private var adjuster:String;   
+			
+			public static const APP_NAME:String = "Music";
+			
+			public function getAuthor():String {   
+				return "lanelife";
+			}
+			
+			public function getAppName():String {   
+				return APP_NAME;   
+			}
+			
+			public function start():void {
+				
+				Alert.show("暂未实现音乐播放功能！");
+			}
+			
+		]]>
+	</fx:Script>
+	
+</s:Module>

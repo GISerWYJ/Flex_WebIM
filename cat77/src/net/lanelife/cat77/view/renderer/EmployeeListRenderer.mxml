@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				xmlns:components="net.lanelife.cat77.view.components.*"
+				autoDrawBackground="false" width="100%">
+	
+	<fx:Script>
+		<![CDATA[
+			import net.lanelife.cat77.WebIMAppContext;
+			import net.lanelife.cat77.view.windows.ChatWindow;
+			import net.lanelife.cat77.vo.Employee;
+			import net.lanelife.framework.cw.WindowManager;
+			
+			private var timer:Timer = new Timer(100);
+			
+			protected function employeeListButton_faceMouseOverHandler(event:Event):void
+			{
+				var p:Point = new Point();
+				p.x = popupAnchor.x;
+				p.y = popupAnchor.y;
+				p = popupAnchor.localToGlobal(p);
+				if (p.x<-273)
+				{
+					popupAnchor.left = null;
+					popupAnchor.right = -5;
+				}
+				else
+				{
+					popupAnchor.left = -278;
+					popupAnchor.right = null;
+				}
+				timer.removeEventListener(TimerEvent.TIMER, timer_timerHandler);
+				timer.stop();
+				popupAnchor.displayPopUp = true;
+			}
+			
+			protected function employeeListButton_faceMouseOutHandler(event:Event):void
+			{
+				timer.addEventListener(TimerEvent.TIMER, timer_timerHandler);   
+				timer.start(); 
+			}
+			
+			private function timer_timerHandler(event:TimerEvent):void
+			{
+				popupAnchor.displayPopUp = false;
+				popupAnchor.left = -278;
+				popupAnchor.right = null;
+			}
+			
+			protected function popupAnchor_mouseOverHandler(event:MouseEvent):void
+			{
+				timer.removeEventListener(TimerEvent.TIMER, timer_timerHandler);
+				timer.stop();
+			}
+			
+			protected function popupAnchor_mouseOutHandler(event:MouseEvent):void
+			{
+				timer.addEventListener(TimerEvent.TIMER, timer_timerHandler);   
+				timer.start(); 
+			}
+			
+			protected function employeeListButton_doubleClickHandler(event:MouseEvent):void
+			{
+			
+				data.appContext.openChatWindow(data as Employee);
+			}
+			
+			private function showEmployeeProfileWindow():void
+			{
+				data.appContext.openEmployeeProfileWindow(data as Employee);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	<s:PopUpAnchor id="popupAnchor" popUpPosition="below" left="-278">
+		
+		<s:BorderContainer backgroundAlpha="0" borderVisible="false" width="273" height="172"
+						   mouseOver="popupAnchor_mouseOverHandler(event)"
+						   mouseOut="popupAnchor_mouseOutHandler(event)">
+			<s:filters>
+				<mx:GlowFilter blurX="10" blurY="10" color="#000000" alpha="0.45"/>
+			</s:filters>
+			<s:Rect left="0" right="0" bottom="0" top="0" radiusX="3">
+				<s:stroke>
+					<s:SolidColorStroke color="#262626" weight="1" caps="square" />
+				</s:stroke>
+			</s:Rect>
+			<s:Rect left="1" right="1" bottom="25" top="1" topLeftRadiusX="3" topRightRadiusX="3">
+				<s:fill>
+					<s:SolidColor color="#ffffff"/>
+				</s:fill>
+			</s:Rect>
+			<s:Rect left="1" right="1" bottom="1" height="24" bottomLeftRadiusX="3" bottomRightRadiusX="3">
+				<s:fill>
+					<s:SolidColor color="#ffffff" alpha="0.8"/>
+				</s:fill>
+			</s:Rect>
+			<s:Group left="5" top="5" width="80" height="130">
+				<s:Rect left="0" top="0" right="0" bottom="0" radiusX="2">
+					<s:stroke>
+						<s:LinearGradientStroke rotation="90">  
+							<s:entries>  
+								<s:GradientEntry color="#7ec3fb" />
+								<s:GradientEntry color="#dde8ee" />  
+							</s:entries>  
+						</s:LinearGradientStroke>  
+					</s:stroke>
+				</s:Rect>
+				<s:Image id="face" left="2" top="2" right="2" bottom="2" smooth="true" scaleMode="stretch"
+						 source="{data.photo}" />
+			</s:Group>
+			<s:Group left="91" top="8">
+				<s:Label text="{data.username}" color="#0d90cd" 
+						 buttonMode="true" useHandCursor="true"
+						 click="showEmployeeProfileWindow()"/>
+				<s:Label top="18" text="{data.sign}" width="170" height="30" lineHeight="15" />
+			</s:Group>
+		</s:BorderContainer>
+		
+	</s:PopUpAnchor>
+	
+	<components:EmployeeListButton id="employeeListButton" width="100%" height="46"
+								   employee="{data}" mouseChildren="true"
+								   faceMouseOver="employeeListButton_faceMouseOverHandler(event)"
+								   faceMouseOut="employeeListButton_faceMouseOutHandler(event)"
+								   skinClass="net.lanelife.cat77.view.skins.EmployeeListButtonSkin"
+								   doubleClick="employeeListButton_doubleClickHandler(event)" doubleClickEnabled="true"/>
+	
+</s:ItemRenderer>

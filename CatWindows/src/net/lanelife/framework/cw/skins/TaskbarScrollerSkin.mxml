@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:cw="net.lanelife.framework.cw.*">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("spark.components.Scroller")]
+	</fx:Metadata>
+	
+	<!-- SkinParts
+	name=horizontalScrollBar, type=spark.components.HScrollBar, required=false
+	name=verticalScrollBar, type=spark.components.VScrollBar, required=false
+	-->
+	<cw:TaskbarVerticalScrollBar id="verticalScrollBar" visible="false" skinClass="net.lanelife.framework.cw.skins.TaskbarVerticalScrollBarSkin"/>
+</s:Skin>

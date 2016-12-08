@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("spark.components.Button")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="down" />
+		<s:State name="over" />
+		<s:State name="up" />
+	</s:states>
+	
+	<s:Rect left="0" right="0" top="0" bottom="0" minWidth="17" minHeight="14" radiusX="1">
+		<s:stroke>
+			<s:SolidColorStroke color="#abcfe1" color.over="#a1cfe6" color.down="#a1cfe6" weight="1"/>
+		</s:stroke>
+		<s:fill>
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry color="#cae3ee"/>
+				<s:GradientEntry color="#c2ddea"/>
+			</s:LinearGradient>
+		</s:fill>
+	</s:Rect>
+	<s:Rect left="2" right="2" top="2" bottom="2" radiusX="1">
+		<s:fill>
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry color="#b0d5e6"/>
+				<s:GradientEntry color="#a6cde0"/>
+			</s:LinearGradient>
+		</s:fill>
+	</s:Rect>
+	
+	<s:Rect left="1" right="1" top="1" height="6" topLeftRadiusX="1" topRightRadiusX="1">
+		<s:fill>
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry color="#ffffff" alpha.up="0.33" alpha.over="0.70" alpha.down="0" ratio="0"/>
+				<s:GradientEntry color="#ffffff" alpha.up="0.35" alpha.over="0.35" alpha.down="0.1" ratio="1"/>
+			</s:LinearGradient>
+		</s:fill>
+	</s:Rect>
+	<s:Rect right="1" left="1" bottom="1" height="7" bottomLeftRadiusX="1" bottomRightRadiusX="1">
+		<s:fill>
+			<s:LinearGradient rotation="90">
+				<s:GradientEntry color="#ffffff" alpha="0" alpha.over="0.15" alpha.down="0.35" ratio="0"/>
+				<s:GradientEntry color="#ffffff" alpha="0" alpha.over="0.15" alpha.down="0.70" ratio="1"/>
+			</s:LinearGradient>
+		</s:fill>
+	</s:Rect>
+	
+	<s:Path data="M3.5 0 0 4 7 3.5Z" horizontalCenter="0" verticalCenter="0" id="arrow" rotation="90">
+		<s:fill>
+			<s:SolidColor color="#707070" color.over="#1c5b7c" color.down="#1e4b63" />
+		</s:fill>
+	</s:Path>
+	<!-- SkinParts
+	name=iconDisplay, type=spark.primitives.BitmapImage, required=false
+	name=labelDisplay, type=spark.core.IDisplayText, required=false
+	-->
+</s:Skin>

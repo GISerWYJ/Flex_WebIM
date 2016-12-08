@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cw:DesktopWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				  xmlns:s="library://ns.adobe.com/flex/spark" 
+				  xmlns:mx="library://ns.adobe.com/flex/mx" 
+				  xmlns:cw="net.lanelife.framework.cw.*" 
+				  title="{message.title}"
+				  icon="images/logo_30x30.png"
+				  minimizable="false" maximizable="false" resizable="false"
+				  width="350" height="200" x="330" y="100"
+				  creationComplete="init()">
+	<fx:Script>
+		<![CDATA[
+			import net.lanelife.cat77.WebIMAppContext;
+			import net.lanelife.framework.desktop.MessageBoxItem;
+			import net.lanelife.cat77.vo.SystemMessage;
+			
+			[Bindable]
+			public var message:SystemMessage;
+			
+			private var model:WebIMAppContext = WebIMAppContext.getInstance();
+			
+			protected function init():void
+			{
+				var mbi:MessageBoxItem = model.getMessageBoxItem(MessageBoxItem.TYPE_SYSTEM_MESSAGE, message.id); //取出消息盒子条目
+				if (mbi!=null)
+				{
+					model.messageBoxItemList.removeItemAt(model.messageBoxItemList.getItemIndex(mbi)); //移除消息盒子条目
+				}
+				model.updateMainWindowTrayIcon(); //更新系统托盘图标
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<s:TextArea text="{message.content}" editable="false"
+				left="10" top="25" right="10" bottom="35"
+				borderVisible="false" focusAlpha="0" contentBackgroundAlpha="0"
+				skinClass="spark.skins.spark.TextAreaSkin"/>
+	
+	<s:Button label="关闭" bottom="4" click="close()" horizontalCenter="0" />
+	
+</cw:DesktopWindow>

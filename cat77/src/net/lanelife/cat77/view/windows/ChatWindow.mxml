@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cw:DesktopWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				  xmlns:s="library://ns.adobe.com/flex/spark" 
+				  xmlns:mx="library://ns.adobe.com/flex/mx" 
+				  xmlns:cw="net.lanelife.framework.cw.*" 
+				  xmlns:components="net.lanelife.cat77.view.components.*"
+				  title="{employee.username}" 
+				  icon="{employee.face}"
+				  width="604" 
+				  height="480" minWidth="604" minHeight="480" x="310" y="10"
+				  windowFocusIn="windowFocusInHandler(event)" xmlns:component="net.lanelife.framework.component.*">
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.elements.DivElement;
+			import flashx.textLayout.elements.FlowElement;
+			import flashx.textLayout.elements.ParagraphElement;
+			import flashx.textLayout.elements.SpanElement;
+			import flashx.textLayout.elements.TextFlow;
+			
+			import mx.events.FlexEvent;
+			
+			import net.lanelife.cat77.EventType;
+			import net.lanelife.framework.event.XEvent;
+			import net.lanelife.framework.event.XEventDispatcher;
+			import net.lanelife.cat77.WebIMAppContext;
+			import net.lanelife.cat77.service.MessageService;
+			import net.lanelife.framework.desktop.MessageBoxItem;
+			import net.lanelife.cat77.vo.Employee;
+			import net.lanelife.cat77.vo.Message;
+			import net.lanelife.framework.cw.Prompt;
+			import net.lanelife.framework.cw.TrayIcon;
+			import net.lanelife.framework.cw.TrayIconManager;
+			import net.lanelife.framework.cw.WindowManager;
+			import net.lanelife.framework.cw.events.WindowEvent;
+			
+			import spark.filters.ColorMatrixFilter;
+			import spark.utils.TextFlowUtil;
+			
+			[Bindable]
+			public var employee:Employee; //对话人员
+			
+			[Bindable]
+			public var appContext:WebIMAppContext;
+			
+			/**
+			 * 当对方隐身或离线时更新头像为灰色
+			 * 
+			 */
+			private function faceFilter(status:Number):Array
+			{
+				if (status==0 || status==2)
+				{
+					return [new ColorMatrixFilter(
+						[0.3086, 0.6094, 0.0820, 0, 0, 0.3086, 0.6094, 0.0820, 0,0, 0.3086, 0.6094, 0.0820, 0, 0, 0, 0, 0, 1, 0]
+					)];
+				}
+				return null;
+			}
+			
+			protected function windowFocusInHandler(event:WindowEvent):void
+			{
+				editor.setEditorFocus(); //当对话窗口获得焦点时设置光标焦点在编辑器的输入框中
+			}
+			
+			public function showMessage(message:Message):void
+			{
+				var username:String = message.sender.username;
+				var dt:Date = message.dt;
+				var content:String = message.content;
+				
+				var div:DivElement = new DivElement(); //创建一个包含姓名和内容的div
+				
+				var np:ParagraphElement = new ParagraphElement(); //创建名字和消息时间的段落
+				var ns:SpanElement = new SpanElement();
+				np.lineHeight = 25;
+				ns.color = 0x0000ff; //对方名字颜色
+				ns.text = username+"  "+df.format(dt);
+				np.addChild(ns);
+				
+				var xml:XML = new XML(content);
+				var mp:ParagraphElement = new ParagraphElement(); //创建消息内容段落
+				var ms:SpanElement = new SpanElement();
+				mp.paddingLeft = 19;
+				mp.fontFamily = xml.attribute("fontFamily").toString();
+				mp.fontSize = xml.attribute("fontSize");
+				mp.color = xml.attribute("color").toString();
+				mp.fontWeight = xml.attribute("fontWeight");
+				mp.fontStyle = xml.attribute("fontStyle");
+				mp.textDecoration = xml.attribute("textDecoration");
+				ms.text = xml.child(0);
+				mp.addChild(ms);
+				
+				div.addChild(np);
+				div.addChild(mp);
+				
+				contents.textFlow.addChild(div);
+				
+				//很奇怪要执行2此才能将滚动条移动到底部
+				contents.validateNow();
+				contents.scroller.viewport.verticalScrollPosition=contents.scroller.viewport.contentHeight;
+				contents.validateNow();
+				contents.scroller.viewport.verticalScrollPosition=contents.scroller.viewport.contentHeight;
+			}
+			
+			private function send():void
+			{
+				var mp:ParagraphElement = editor.content();
+				if (mp!=null)
+				{
+					var mc:String = SpanElement(mp.getChildAt(0)).text;
+					if (mc.length<4000)
+					{
+						var div:DivElement = new DivElement(); //创建一个包含姓名和内容的div
+						
+						var np:ParagraphElement = new ParagraphElement(); //创建名字和消息时间的段落
+						var ns:SpanElement = new SpanElement();
+						np.lineHeight = 25;
+						ns.color = 0x008040; //自己名字的颜色
+						ns.text = appContext.employee.username+"  "+df.format(new Date());
+						np.addChild(ns);
+						
+						div.addChild(np);
+						div.addChild(mp);
+						
+						contents.textFlow.addChild(div);
+						
+						contents.validateNow();
+						contents.scroller.viewport.verticalScrollPosition=contents.scroller.viewport.contentHeight;
+						contents.validateNow();
+						contents.scroller.viewport.verticalScrollPosition=contents.scroller.viewport.contentHeight;
+						
+						var mtf:TextFlow = new TextFlow();
+						mtf.addChild(mp.deepCopy());
+						
+						var message:Message = new Message(); //new一条消息
+						message.sender = appContext.employee; //设置发送者为自己
+						message.receiver = employee; //设置接收者为对话人员
+						message.content = TextFlowUtil.export(mtf).children(); //设置消息内容
+						//分发消息发送事件
+						
+						MessageService.send(message);
+						
+						editor.clear();
+					} else {
+						Prompt.show(this,"发送消息内容超长,请分条发送!","发送消息",Prompt.OK,null,"images/plaint.png");
+					}
+				}
+				editor.setEditorFocus();
+			}
+			
+			protected function closeBtn_clickHandler(event:MouseEvent):void
+			{
+				this.close();
+			}
+			
+			public function init():void
+			{
+				var mbi:MessageBoxItem = appContext.getMessageBoxItem(MessageBoxItem.TYPE_EMPLOYEE_MESSAGE, employee.id); //取出消息盒子条目
+				if (mbi!=null)
+				{
+					for (var i:Number=0; i<mbi.messages.length; i++)
+					{
+						showMessage(mbi.messages[i]); //循环取出消息进行显示;
+					}
+					appContext.messageBoxItemList.removeItemAt(appContext.messageBoxItemList.getItemIndex(mbi)); //移除消息盒子条目
+				}
+				appContext.updateMainWindowTrayIcon(); //更新系统托盘图标
+			}
+			
+			private function showEmployeeProfileWindow():void
+			{
+				appContext.openEmployeeProfileWindow(employee);
+			}
+			
+			protected function editor_historyHandler(event:Event):void
+			{
+				if (editor.showHistory) {
+					this.width += 200;
+					this.minWidth = 804;
+				}
+				else
+				{
+					this.width -= 200;
+					this.minWidth = 604;
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<mx:DateFormatter id="df" formatString="YYYY-MM-DD JJ:NN:SS" />
+	</fx:Declarations>
+	
+	<!--头像-->
+	<s:Group left="8" top="6" width="30" height="30">
+		<s:Rect left="0" top="0" right="0" bottom="0" radiusX="2">
+			<s:stroke>
+				<s:SolidColorStroke color="#000000" alpha="0.20" weight="1" caps="square" />
+			</s:stroke>
+		</s:Rect>
+		<s:Rect left="1" top="1" right="1" bottom="1" radiusX="2">
+			<s:stroke>
+				<s:SolidColorStroke color="#ffffff" alpha="0.20" weight="1" caps="square" />
+			</s:stroke>
+			<s:fill>
+				<s:SolidColor color="#ffffff"/>
+			</s:fill>
+		</s:Rect>
+		<s:Image left="2" top="2" right="2" bottom="2" smooth="true" 
+				 source="{employee.face}" filters="{faceFilter(employee.status)}" />
+	</s:Group>
+	
+	<!--姓名与个性签名-->
+	<s:Group left="45" top="8" right="0">
+		<s:Label text="{employee.username}" fontWeight="bold" buttonMode="true" useHandCursor="true" click="showEmployeeProfileWindow()">
+			<s:filters>
+				<s:GlowFilter color="#ffffff" blurX="2" blurY="2" strength="3" alpha="0.3"/>
+			</s:filters>
+		</s:Label>
+		<s:TextInput text="{employee.sign}" 
+					 toolTip="{employee.sign}" 
+					 editable="false"
+					 left="0" top="15" right="10" paddingTop="0" paddingLeft="0" 
+					 contentBackgroundAlpha="0" borderVisible="false" focusAlpha="0">
+			<s:filters>
+				<s:GlowFilter color="#ffffff" blurX="2" blurY="2" strength="3" alpha="0.3"/>
+			</s:filters>
+		</s:TextInput>
+	</s:Group>
+	
+	<!--功能按钮区域-->
+	<s:HGroup left="5" top="43" right="0">
+		<s:Button icon="@Embed(source='assets/icons/404.png')" 
+				  width="34" height="36"
+				  skinClass="net.lanelife.cat77.view.skins.IconButtonSkin"
+				  click="navigateToURL(new URLRequest('http://www.lanelife.net'),'_blank')" toolTip="蓝易实验室"/>
+	</s:HGroup>
+	
+	
+	<s:HGroup left="0" top="81" right="0" bottom="1" gap="0">
+		<!--左-->
+		<s:Group width="100%" height="100%">
+			<s:VGroup left="0" top="0" right="0" bottom="30" gap="0">
+				<!--消息内容显示区域-->
+				<s:Group width="100%" height="100%">
+					<s:Rect left="0" top="0" right="0" bottom="0">
+						<s:fill>  
+							<s:LinearGradient rotation="90">  
+								<s:entries>  
+									<s:GradientEntry color="#ffffff" alpha="0.85" />  
+									<s:GradientEntry color="#ffffff" alpha="0.95" />
+								</s:entries>  
+							</s:LinearGradient>  
+						</s:fill>
+					</s:Rect>
+					<s:TextArea id="contents" 
+								left="0" top="0" right="0" bottom="0"
+								paddingLeft="5" contentBackgroundAlpha="0" paddingBottom="10"
+								borderVisible="false" focusAlpha="0" editable="false"/>
+				</s:Group>
+				<!--编辑器-->
+				<components:SimpleChatEditor id="editor" height="120" width="100%" submit="send()" history="editor_historyHandler(event)"/>
+			</s:VGroup>
+			<!--底部按钮区域-->
+			<s:Group height="30" left="0" right="0" bottom="0">
+				<s:Rect left="0" top="0" right="0" bottom="0" bottomLeftRadiusX="4">
+					<s:fill>  
+						<s:LinearGradient rotation="90">  
+							<s:entries>  
+								<s:GradientEntry color="#ffffff" alpha="0.9" />  
+								<s:GradientEntry color="#ffffff" alpha="0.6" /> 
+							</s:entries>  
+						</s:LinearGradient>  
+					</s:fill>
+				</s:Rect>
+				<s:Button id="closeBtn" label="关闭" bottom="4" right="80" click="closeBtn_clickHandler(event)" />
+				<s:Button id="sendBtn" label="发送" bottom="4" right="5" click="send()" />
+			</s:Group>
+		</s:Group>
+		<!--右-->
+		<s:Group width="{(editor.showHistory)?355:155}" height="100%">
+			<s:Rect left="0" top="0" right="0" bottom="0" alpha="0.95" bottomRightRadiusX="4">
+				<s:fill>
+					<s:SolidColor color="#ffffff"/>
+				</s:fill>
+			</s:Rect>
+			
+			<s:Group left="2" top="2" bottom="2" right="2" visible="{!editor.showHistory}" includeInLayout="{!editor.showHistory}">
+				<component:PhotoBox width="140" height="190" image="{employee.photo}" horizontalCenter="0"/>
+				<component:PhotoBox width="140" height="170" image="{appContext.employee.photo}" horizontalCenter="0" bottom="0"/>
+			</s:Group>
+			
+			<s:Group left="2" top="2" right="2" bottom="2" visible="{editor.showHistory}" includeInLayout="{editor.showHistory}">
+				<s:Rect left="0" top="0" right="0" bottom="0" radiusX="2">
+					<s:stroke>
+						<s:SolidColorStroke color="#cde1eb"/>
+					</s:stroke>
+				</s:Rect>
+				<s:Rect left="2" top="2" right="2" height="30" topLeftRadiusX="2" topRightRadiusX="2">
+					<s:fill>
+						<s:LinearGradient rotation="90">
+							<s:entries>
+								<s:GradientEntry color="#daf0f8"/>
+								<s:GradientEntry color="#daf0f8" alpha="0"/>
+							</s:entries>
+						</s:LinearGradient>
+					</s:fill>
+				</s:Rect>
+				<s:Label left="5" top="9" text="内容:" />
+				<s:TextInput left="37" top="5" />
+				<s:Button label="查询" left="173" top="5" />
+				
+				
+			</s:Group>
+			
+		</s:Group>
+	</s:HGroup>
+	
+</cw:DesktopWindow>

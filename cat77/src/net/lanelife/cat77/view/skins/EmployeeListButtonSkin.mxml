@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("net.lanelife.cat77.view.components.EmployeeListButton")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import spark.filters.ColorMatrixFilter;
+			
+			private function faceFilter(status:Number):Array
+			{
+				if (status==0 || status==2)
+				{
+					return [new ColorMatrixFilter(
+						[0.3086, 0.6094, 0.0820, 0, 0, 0.3086, 0.6094, 0.0820, 0,0, 0.3086, 0.6094, 0.0820, 0, 0, 0, 0, 0, 1, 0]
+					)];
+				}
+				return null;
+			}
+		]]>
+	</fx:Script>
+	<!-- states -->
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="down" />
+		<s:State name="over" />
+		<s:State name="up" />
+	</s:states>
+	
+	<s:transitions>
+		<s:Transition fromState="over" toState="down">
+			<s:AnimateColor colorFrom="#c0e1f8" colorTo="#fceaa2" target="{background}"/>
+		</s:Transition>
+		<s:Transition fromState="down" toState="over">
+			<s:AnimateColor colorFrom="#fceaa2" colorTo="#c0e1f8" target="{background}"/>
+		</s:Transition>
+	</s:transitions>
+	
+	
+	<s:Rect left="10" right="5" top="0" bottom="0" radiusX="2" alpha.up="0">
+		<s:fill>
+			<s:SolidColor id="background" color.over="#c0e1f8" color.down="#fceaa2" />
+		</s:fill>
+	</s:Rect>
+	
+	<s:Image id="faceDisplay" width="40" height="40" top="3" left="15" 
+			 source="{hostComponent.employee.face}"
+			 filters="{faceFilter(hostComponent.employee.status)}"
+			 mouseEnabled="true" mouseChildren="true"
+			 smooth="true"/>
+	
+	<s:Label text="{hostComponent.employee.username}"
+			 verticalAlign="middle"
+			 maxDisplayedLines="1"
+			 width="100%" top="7" left="60"/>
+	
+	<s:Label text="{hostComponent.employee.sign}"
+			 verticalAlign="middle"
+			 maxDisplayedLines="1"
+			 width="100%" top="22" left="60"/>
+	
+</s:Skin>

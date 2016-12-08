@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("spark.components.HScrollBar")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="inactive" />
+		<s:State name="disabled" />
+		<s:State name="normal" />
+	</s:states>
+	
+	<s:Button id="track" left="16" right="16"
+			  focusEnabled="false"
+			  skinClass="net.lanelife.framework.skin.mac.scrollbar.HScrollBarTrackSkin" />
+	
+	<s:Button id="thumb" 
+			  focusEnabled="false" visible.inactive="false"
+			  skinClass="net.lanelife.framework.skin.mac.scrollbar.HScrollBarThumbSkin" />
+	
+	<s:Button id="decrementButton" left="0"
+			  focusEnabled="false" enabled.inactive="false"
+			  skinClass="net.lanelife.framework.skin.mac.scrollbar.ScrollBarLeftButtonSkin" />
+	
+	<s:Button id="incrementButton" right="0"
+			  focusEnabled="false" enabled.inactive="false"
+			  skinClass="net.lanelife.framework.skin.mac.scrollbar.ScrollBarRightButtonSkin" />
+	
+	<!-- SkinParts
+	name=incrementButton, type=spark.components.Button, required=false
+	name=track, type=spark.components.Button, required=false
+	name=thumb, type=spark.components.Button, required=false
+	name=decrementButton, type=spark.components.Button, required=false
+	-->
+</s:Skin>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("spark.components.Button")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="down" />
+		<s:State name="over" />
+		<s:State name="up" />
+	</s:states>
+	
+	<!-- SkinParts
+	name=labelDisplay, type=spark.components.supportClasses.TextBase, required=false
+	-->
+	
+	<s:Rect top="0" bottom="0" left="0" right="0" radiusX="1">
+		<s:fill>
+			<s:SolidColor color="#ffffff" alpha="0" />
+		</s:fill>
+	</s:Rect>
+	
+	<s:Rect top="0" bottom="0" left="0" right="0" radiusX="1" includeIn="over,down">
+		<s:stroke>
+			<s:SolidColorStroke color="#000000" alpha="0.40" weight="1" caps="square" />
+		</s:stroke>
+	</s:Rect>
+	
+	<s:Rect height="10" left="1" top="1" right="1" topLeftRadiusX="1" topRightRadiusX="1" includeIn="over,down">
+		<s:fill>  
+			<s:LinearGradient rotation="90">  
+				<s:entries>  
+					<s:GradientEntry color="#ffffff" alpha="0.3" />  
+					<s:GradientEntry color="#ffffff" alpha="0.1" />
+				</s:entries>  
+			</s:LinearGradient>  
+		</s:fill>
+	</s:Rect>
+	<s:Rect height="10" left="1" bottom="1" right="1" alpha="0.04" bottomLeftRadiusX="1" bottomRightRadiusX="1" includeIn="over,down">
+		<s:fill>
+			<s:SolidColor color="#ffffff"/>
+		</s:fill>
+	</s:Rect>
+	
+	<s:Rect left="1" top="1" right="1" bottom="1" radiusX="1" includeIn="over,down">
+		<s:stroke>
+			<s:LinearGradientStroke rotation="90">
+				<s:entries>  
+					<s:GradientEntry color="#ffffff" alpha="0.6" />  
+					<s:GradientEntry color="#ffffff" alpha="0.5" />
+				</s:entries>  
+			</s:LinearGradientStroke>  
+		</s:stroke>
+	</s:Rect>
+	
+	<s:Path right="4" verticalCenter="0" id="arrow"
+			data="M 4.0 4.0 L 4.0 3.0 L 5.0 3.0 L 5.0 2.0 L 6.0 2.0 L 6.0 1.0 L 7.0 1.0 L 7.0 0.0 L 0.0 0.0 L 0.0 1.0 L 1.0 1.0 L 1.0 2.0 L 2.0 2.0 L 2.0 3.0 L 3.0 3.0 L 3.0 4.0 L 4.0 4.0">
+		<s:fill>
+			<s:RadialGradient rotation="90" focalPointRatio="1">   
+				<s:GradientEntry id="arrowFill1" color="0x535154" alpha="0.7" />
+				<s:GradientEntry id="arrowFill2" color="0x535154" alpha="0.9" />
+			</s:RadialGradient>
+		</s:fill>
+	</s:Path>
+	
+</s:Skin>

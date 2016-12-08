@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx" width="16" height="16">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("spark.components.Button")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="down" />
+		<s:State name="over" />
+		<s:State name="up" />
+	</s:states>
+	
+	<s:Image top="0" left="0" rotation="-180" includeIn="over, down" source="@Embed(source='scroll_arrow_down_over.png')" />
+	<s:Image top="0" left="0" includeIn="disabled, up" rotation="-180" source="@Embed(source='scroll_arrow_down_up.png')" />
+</s:Skin>

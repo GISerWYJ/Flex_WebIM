@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="200" height="95">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.ColorPickerEvent;
+			
+			protected function colorPicker_changeHandler(event:ColorPickerEvent):void
+			{
+				SkinManager.changeSkin(event.color);
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<s:filters>
+		<mx:GlowFilter blurX="5" blurY="5" color="#000000" alpha="0.25"/>
+	</s:filters>
+	<s:Rect left="0" right="0" bottom="0" top="0" radiusX="3">
+		<s:stroke>
+			<s:SolidColorStroke color="#588297" weight="1" caps="square" />
+		</s:stroke>
+		<s:fill>
+			<s:LinearGradient rotation="90">  
+				<s:entries>  
+					<s:GradientEntry color="#ffffff" alpha="1" ratio="0" />  
+					<s:GradientEntry color="#ffffff" alpha="1" ratio="0.6" />  
+					<s:GradientEntry color="#ffffff" alpha="0.5" ratio="1" />
+				</s:entries>  
+			</s:LinearGradient>  
+		</s:fill>
+	</s:Rect>
+	
+	<s:DataGroup left="8" right="8" bottom="5" top="5">
+		<s:layout>
+			<s:HorizontalLayout/>
+		</s:layout>
+		<s:dataProvider>
+			<s:ArrayList>
+				<fx:Object source="images/skins/default.png" />
+				<fx:Object source="images/skins/skin1.png" />
+				<fx:Object source="images/skins/skin2.png" />
+				<fx:Object source="images/skins/skin3.png" />
+			</s:ArrayList>
+		</s:dataProvider>
+		<s:itemRenderer>
+			<fx:Component>
+				<s:ItemRenderer height="60" width="46">
+					
+					<fx:Script>
+						<![CDATA[
+							protected function image1_clickHandler(event:MouseEvent):void
+							{
+								SkinManager.changeSkin(data.source);
+							}
+						]]>
+					</fx:Script>
+					
+					<s:Image source="{data.source}" left="2" right="2" top="2" bottom="2" scaleMode="stretch"
+							 click="image1_clickHandler(event)"/>
+				</s:ItemRenderer>
+			</fx:Component>
+		</s:itemRenderer>
+	</s:DataGroup>
+	
+	<s:Label bottom="10" left="10" text="请选择外观图像或颜色"/>
+	<mx:ColorPicker id="colorPicker" right="10" bottom="5" change="colorPicker_changeHandler(event)" />
+	
+</s:Group>

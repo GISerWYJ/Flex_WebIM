@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="150" height="209"
+		 creationComplete="init()">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.core.FlexGlobals;
+			
+			import net.lanelife.cat77.WebIMAppContext;
+			import net.lanelife.cat77.view.windows.AboutWindow;
+			import net.lanelife.cat77.view.windows.ChangePasswordWindow;
+			import net.lanelife.cat77.view.windows.CatIMLoginWindow;
+			import net.lanelife.cat77.view.windows.MainWindow;
+			import net.lanelife.framework.cw.StartButton;
+			import net.lanelife.framework.cw.TrayIconManager;
+			import net.lanelife.framework.cw.WindowManager;
+			
+			private var model:WebIMAppContext = WebIMAppContext.getInstance();
+			
+			private function init():void
+			{
+				this.addEventListener(MouseEvent.MOUSE_OVER,function(e:MouseEvent):void{
+					StartButton.display = true;
+				});
+				this.addEventListener(MouseEvent.MOUSE_OUT,function(e:MouseEvent):void{
+					StartButton.display = false;
+				});
+			}
+			
+			private function logout():void
+			{
+				model.logout();
+				this.visible = false;
+			}
+			
+			private function exit():void
+			{
+				navigateToURL(new URLRequest("javascript:window.close()"),"_self");
+				this.visible = false;
+			}
+			
+			private function about():void
+			{
+				var aboutWindow:AboutWindow = WindowManager.get("aboutWindow") as AboutWindow;
+				if (aboutWindow==null)
+				{
+					aboutWindow = new AboutWindow();
+					aboutWindow.id = "aboutWindow";
+					aboutWindow.ownerWindow = WindowManager.get("mainWindow");
+				}
+				aboutWindow.show();
+				this.visible = false;
+			}
+			
+			private function bugreport():void
+			{
+				navigateToURL(new URLRequest("http://www.lanelife.net/cat77/bugreport"),"_blank");
+				this.visible = false;
+			}
+			
+			private function update():void
+			{
+				navigateToURL(new URLRequest("http://www.lanelife.net/cat77/update"),"_blank");
+				this.visible = false;
+			}
+			
+			private function changePassword():void
+			{
+				var changePasswordWindow:ChangePasswordWindow = WindowManager.get("changePasswordWindow") as ChangePasswordWindow;
+				if (changePasswordWindow==null)
+				{
+					changePasswordWindow = new ChangePasswordWindow();
+					changePasswordWindow.id = "aboutWindow";
+					changePasswordWindow.ownerWindow = WindowManager.get("mainWindow");
+				}
+				changePasswordWindow.show();
+				this.visible = false;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:filters>
+		<mx:GlowFilter blurX="10" blurY="10" color="#000000" alpha="0.45"/>
+	</s:filters>
+	
+	<s:Rect left="0" right="0" bottom="0" top="0" radiusX="2" alpha="0.95">
+		<s:stroke>
+			<s:SolidColorStroke color="#666666" weight="1" caps="square" />
+		</s:stroke>
+		<s:fill>
+			<s:SolidColor color="#fffefc"/>
+		</s:fill>
+	</s:Rect>
+	<s:Rect left="2" bottom="2" top="2" width="28" topLeftRadiusX="2" bottomLeftRadiusX="2">
+		<s:fill>
+			<s:SolidColor color="#e1edf0"/>
+		</s:fill>
+	</s:Rect>
+	
+	
+	<s:VGroup left="2" right="2" bottom="2">
+		<s:Button label="反馈问题" click="bugreport()" skinClass="net.lanelife.framework.desktop.StartMenuButtonSkin"/>
+		<s:Button label="关于" click="about()" skinClass="net.lanelife.framework.desktop.StartMenuButtonSkin"/>
+		<s:Button label="在线升级" click="update()" skinClass="net.lanelife.framework.desktop.StartMenuButtonSkin"/>
+		<s:Button label="修改密码" click="changePassword()" skinClass="net.lanelife.framework.desktop.StartMenuButtonSkin"/>
+		<s:Button label="更改用户" click="logout()" skinClass="net.lanelife.framework.desktop.StartMenuButtonSkin"/>
+		<s:Button label="退出" click="exit()" skinClass="net.lanelife.framework.desktop.StartMenuButtonSkin"/>
+	</s:VGroup>
+	
+</s:Group>

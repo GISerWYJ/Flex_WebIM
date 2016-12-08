@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   xmlns:business="net.lanelife.cat77.business.*" 
+			   xmlns:control="net.lanelife.cat77.control.*"
+			   creationComplete="init()">
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		s|Label {
+			font-family:宋体;
+			fontSize:12px;
+		}
+	</fx:Style>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			
+			import net.lanelife.cat77.WebIMAppContext;
+			import net.lanelife.cat77.service.DepartmentService;
+			import net.lanelife.cat77.service.EmployeeService;
+			import net.lanelife.cat77.service.ManagerService;
+			import net.lanelife.cat77.service.ServerSettingsService;
+			import net.lanelife.cat77.vo.Department;
+			import net.lanelife.cat77.vo.Employee;
+			import net.lanelife.cat77.vo.Manager;
+			import net.lanelife.framework.cw.Alert;
+			
+			import spark.collections.Sort;
+			import spark.collections.SortField;
+			import spark.events.GridSelectionEvent;
+			
+			[Bindable]
+			private var model:WebIMAppContext = WebIMAppContext.getInstance();
+			
+			[Bindable]
+			private var employee:Employee = new Employee();
+			
+			
+			private function init():void
+			{
+				employee.sex = "男";
+			}
+			
+			private function login():void
+			{
+				var manager:Manager = new Manager();
+				manager.username = loginname.text;
+				manager.password = loginpwd.text;
+				
+				ManagerService.login(manager).addResultListener( function result(data:Object):void {
+					var model:WebIMAppContext = WebIMAppContext.getInstance();
+					var manager:Manager = data.result as Manager;
+					if (manager != null) {
+						model.manager = manager;
+						manager_loginCheckSuccessfulHandler();
+					} else {
+						Alert.show("帐号或密码错误!","验证错误");
+					}
+				}).addFaultListener(function fault(info:Object):void {
+					Alert.show("登录失败,请稍候重试!","错误提示");
+				})
+			}
+			
+			private function manager_loginCheckSuccessfulHandler():void
+			{
+				this.currentState = "main";
+				
+				DepartmentService.findAll().addResultListener(function findAllRresult(event:ResultEvent):void {
+					var model:WebIMAppContext = WebIMAppContext.getInstance();
+					var list:ArrayCollection = event.result as ArrayCollection;
+					if (list != null) {
+						for (var i:Number=0; i<list.length; i++) {
+							var sort:Sort = new Sort();
+							var sortField:SortField = new SortField();
+							sortField.compareFunction = function sortFunction(a:Employee, b:Employee):int { 
+								if (a.status==1&&b.status==1)
+									return ObjectUtil.stringCompare(a.username, b.username);
+								else if (a.status==1)
+									return -1;
+								else if (b.status==1)
+									return 1;
+								return ObjectUtil.stringCompare(a.username, b.username);
+							};
+							sort.fields = [sortField];
+							list[i].employees.sort = sort;
+							list[i].employees.refresh();
+						}
+						var deptSort:Sort = new Sort();
+						deptSort.fields = [new SortField("name")];
+						list.sort = deptSort;
+						list.refresh();
+						model.departmentList = list;
+					}
+				});
+				
+//				ServerSettingsService.find().addResultListener(onGetServerSettingsResult).addFaultListener(function(event:FaultEvent):void{
+//					Alert.show("获取不到服务器设置,请检查网络!","错误提示");
+//				});
+			}
+			
+			private function saveManager():void
+			{
+				if (managerPassword.text=="")
+				{
+					Alert.show("请输入密码!","验证错误");
+				}
+				else
+				{
+					model.manager.password = managerPassword.text;
+					
+					ManagerService.save(model.manager).addResultListener(function result(data:Object):void
+					{
+						Alert.show("保存成功!","提示");
+					}).addFaultListener(function fault(info:Object):void {
+						Alert.show("保存失败,请稍候重试!","错误提示");
+					});
+				}
+			}
+			
+			private function addDept():void
+			{
+				if (deptName.text=="")
+				{
+					Alert.show("请输入部门名称!","验证错误");
+				}
+				else
+				{
+					var department:Department = new Department();
+					department.name = deptName.text;
+					DepartmentService.save(department).addResultListener(function result(data:*):void {
+						department_saveSuccessfulHandler(department);
+					}).addFaultListener(function fault(info:*):void {
+						Alert.show("保存失败,请稍候重试!","错误提示");
+					});
+				}
+			}
+			private function department_saveSuccessfulHandler(department:Department):void
+			{
+				var flag:Boolean = false;
+				for (var i:Number=0; i<model.departmentList.length; i++)
+				{
+					if (model.departmentList[i].id==department.id)
+					{
+						flag = true;
+						model.departmentList[i] = department;
+					}
+				}
+				if (!flag)
+				{
+					model.departmentList.addItem(department);
+				}
+				deptList.selectedItem = department;
+				Alert.show("保存成功!","提示");
+			}
+			
+			private function saveDept():void
+			{
+				if (deptName.text=="")
+				{
+					Alert.show("请输入部门名称!","验证错误");
+				}
+				else
+				{
+					var department:Department = new Department();
+					department.id = deptList.selectedItem.id;
+					department.name = deptName.text;
+					department.employees = deptList.selectedItem.employees;
+					DepartmentService.save(department).addResultListener(function result(data:*):void {
+						department_saveSuccessfulHandler(department);
+					}).addFaultListener(function fault(info:*):void {
+						Alert.show("保存失败,请稍候重试!","错误提示");
+					});
+				}
+			}
+			
+			private function deleteDept():void
+			{
+				if (deptList.selectedItem.employees.length>0) {
+					Alert.show("请先删除该部门的人员!","错误提示");
+				} else {
+					DepartmentService.remove(deptList.selectedItem).addResultListener(function result(event:ResultEvent):void {
+						department_removeSuccessfulHandler(event.result as Department);
+					}).addFaultListener(function fault(info:Object):void {
+						Alert.show("删除失败,请稍候重试!","错误提示");
+					});
+				}
+			}
+			private function department_removeSuccessfulHandler(department:Department):void
+			{
+				for (var i:Number=0; i<model.departmentList.length; i++)
+				{
+					if (model.departmentList[i].id==department.id)
+					{
+						model.departmentList.removeItemAt(i);
+					}
+				}
+				Alert.show("删除成功!","提示");
+			}
+			
+			private function deleteEmp():void
+			{
+				var employee:Employee = model.getEmployee(empList.selectedItem.id);
+				EmployeeService.remove(employee).addResultListener(function result(data:*):void {
+					employee_removeSuccessfulHandler(data.result as Employee);
+				}).addFaultListener(function fault(info:*):void {
+					Alert.show(info.toString());
+					Alert.show("删除失败,请稍候重试!","错误提示");
+				});
+			}
+			
+			private function employee_removeSuccessfulHandler(employee:Employee):void
+			{
+				for (var i:Number=0; i<model.departmentList.length; i++)
+				{
+					if (model.departmentList[i].id==employee.department.id)
+					{
+						model.departmentList[i].employees.removeItemAt(
+							model.departmentList[i].employees.getItemIndex(employee)
+						);
+					}
+				}
+				Alert.show("删除成功!","提示");
+			}
+			
+			protected function empList_selectionChangeHandler(event:GridSelectionEvent):void
+			{
+				var emp:Employee = empList.selectedItem as Employee;
+				employee.id = emp.id;
+				employee.username = emp.username;
+				employee.password = emp.password;
+				employee.enable = emp.enable;
+				employee.status = emp.status;
+				employee.face = emp.face;
+				employee.photo = emp.photo;
+				employee.sign = emp.sign;
+				employee.sex = emp.sex;
+				employee.birthday = emp.birthday;
+				employee.age = emp.age;
+				employee.zodiac = emp.zodiac;
+				employee.constellation = emp.constellation;
+				employee.bloodtype = emp.bloodtype;
+				employee.job = emp.job;
+				employee.mobile = emp.mobile;
+				employee.telephone = emp.telephone;
+				employee.email = emp.email;
+				employee.qq = emp.qq;
+				employee.graduateschool = emp.graduateschool;
+				employee.professional = emp.professional;
+				employee.birthplace = emp.birthplace;
+				employee.confessions = emp.confessions;
+				employee.department = emp.department;
+			}
+			
+			private function saveEmp(type:Number):void
+			{
+				if (type==1 && employeePwd.text=="")
+				{
+					Alert.show("请设置员工密码!","验证错误");
+				}
+				else
+				{
+					if (type==1)
+					{
+						employee.id = 0;
+					}
+					if (employeePwd.text!="")
+					{
+						employee.password = employeePwd.text;
+					}
+					EmployeeService.save(employee).addResultListener(function result(data:Object):void {
+						var model:WebIMAppContext = WebIMAppContext.getInstance();
+						var employee:Employee = data.result as Employee;
+						if (model.getEmployee(employee.id)==null)
+						{
+							for (var i:Number=0; i<model.departmentList.length; i++)
+							{
+								if (model.departmentList[i].id==employee.department.id)
+								{
+									model.departmentList[i].employees.addItem(employee);
+								}
+							}
+						}
+						else
+						{
+							var emp:Employee = model.getEmployee(employee.id);
+							emp.id = employee.id;
+							emp.username = employee.username;
+							emp.password = employee.password;
+							emp.enable = employee.enable;
+							emp.status = employee.status;
+							emp.face = employee.face;
+							emp.photo = employee.photo;
+							emp.sign = employee.sign;
+							emp.sex = employee.sex;
+							emp.birthday = employee.birthday;
+							emp.age = employee.age;
+							emp.zodiac = employee.zodiac;
+							emp.constellation = employee.constellation;
+							emp.bloodtype = employee.bloodtype;
+							emp.job = employee.job;
+							emp.mobile = employee.mobile;
+							emp.telephone = employee.telephone;
+							emp.email = employee.email;
+							emp.qq = employee.qq;
+							emp.graduateschool = employee.graduateschool;
+							emp.professional = employee.professional;
+							emp.birthplace = employee.birthplace;
+							emp.confessions = employee.confessions;
+							emp.department = employee.department;
+						}
+						
+					}).addFaultListener(function fault(info:Object):void {
+						Alert.show(info.toString());
+					});
+				}
+			}
+		]]>
+	</fx:Script>
+	
+	<s:states>
+		<s:State name="login"/>
+		<s:State name="main"/>
+	</s:states>
+	
+	<s:Panel title="管理登录" width="332" height="218" verticalCenter="0" horizontalCenter="0" includeIn="login">
+		<s:Label x="27" y="42" text="管理员帐号:"/>
+		<s:TextInput id="loginname" x="103" y="37" width="198" enter="login()"/>
+		<s:Label x="27" y="82" text="管理员密码:"/>
+		<s:TextInput id="loginpwd" x="103" y="77" width="198" displayAsPassword="true" enter="login()"/>
+		<s:Button x="130" y="144" label="登录" click="login()"/>
+	</s:Panel>
+	
+	<s:Scroller width="100%" height="100%" includeIn="main">
+		<s:Group width="100%" height="100%">
+			
+			
+			<s:Panel title="管理控制中心" width="1000" height="520" top="10" left="10">
+				<s:ButtonBar x="10" y="10" width="379" height="24" dataProvider="{viewStack}" requireSelection="true"/>
+				
+				<mx:ViewStack id="viewStack" top="50" left="0" right="0" bottom="0" creationPolicy="all">
+					<s:NavigatorContent label="部门人员管理">
+						<s:Group width="988" height="389">
+							
+							<s:Label x="10" y="10" text="部门名称:"/>
+							<s:TextInput id="deptName" x="66" y="6" width="148" text="{deptList.selectedItem.name}"/>
+							<s:Button x="66" y="36" label="添加" click="addDept()"/>
+							<s:Button x="144" y="36" label="修改" click="saveDept()" enabled="{deptList.selectedIndex>-1}"/>
+							
+							<s:List id="deptList" x="66" y="65" width="148" height="289" 
+									labelField="name" dataProvider="{model.departmentList}"/>
+							
+							<s:Button x="66" y="362" label="删除选中部门" click="deleteDept()" enabled="{deptList.selectedIndex>-1}"/>
+							
+							<s:DataGrid id="empList" x="234" y="6" width="380" height="348" requestedRowCount="4"
+										selectionChange="empList_selectionChangeHandler(event)"
+										dataProvider="{deptList.selectedItem.employees}">
+								<s:columns>
+									<s:ArrayList>
+										<s:GridColumn dataField="id" headerText="帐号" width="50"></s:GridColumn>
+										<s:GridColumn dataField="username" headerText="姓名" width="100"></s:GridColumn>
+										<s:GridColumn dataField="sex" headerText="性别" width="50"></s:GridColumn>
+										<s:GridColumn dataField="department.name" headerText="部门" width="100"></s:GridColumn>
+										<s:GridColumn dataField="job" headerText="职务" width="100"></s:GridColumn>
+										<s:GridColumn dataField="mobile" headerText="手机" width="100"></s:GridColumn>
+										<s:GridColumn dataField="telephone" headerText="电话" width="100"></s:GridColumn>
+										<s:GridColumn dataField="email" headerText="邮箱" width="100"></s:GridColumn>
+										<s:GridColumn dataField="professional" headerText="专业" width="100"></s:GridColumn>
+										<s:GridColumn dataField="birthplace" headerText="籍贯" width="100"></s:GridColumn>
+									</s:ArrayList>
+								</s:columns>
+							</s:DataGrid>
+							<s:Button x="234" y="362" label="删除选中人员" click="deleteEmp()" enabled="{empList.selectedIndex>-1}"/>
+							
+							<s:Group x="643" y="6" width="345" height="348">
+								<s:Label y="4" text="姓名:"/>
+								<s:Label x="170" y="4" text="性别:"/>
+								<s:Label x="0" y="34" text="部门:"/>
+								<s:Label x="170" y="34" text="职务:"/>
+								<s:Label x="170" y="64" text="电话:"/>
+								<s:Label x="0" y="64" text="手机:"/>
+								<s:Label x="0" y="94" text="邮箱:"/>
+								<s:Label x="170" y="94" text="专业:"/>
+								<s:Label x="0" y="124" text="籍贯:"/>
+								<s:Label x="0" y="154" text="密码:"/>
+								<s:TextInput x="34" width="127" text="@{employee.username}"/>
+								<s:TextInput x="34" y="60" width="127" text="@{employee.mobile}"/>
+								<s:TextInput x="34" y="90" width="127" text="@{employee.email}"/>
+								<s:TextInput x="34" y="120" width="297" text="@{employee.birthplace}"/>
+								<s:DropDownList x="204" y="0" width="127" selectedItem="@{employee.sex}">
+									<s:dataProvider>
+										<s:ArrayList source="[男,女]" /> 
+									</s:dataProvider>
+								</s:DropDownList>
+								<s:DropDownList x="34" y="29" width="127"
+												dataProvider="{model.departmentList}" labelField="name"
+												selectedItem="@{employee.department}"/>
+								<s:TextInput x="204" y="30" width="127" text="@{employee.job}"/>
+								<s:TextInput x="204" y="60" width="127" text="@{employee.telephone}"/>
+								<s:TextInput x="204" y="90" width="127" text="@{employee.professional}"/>
+								<s:TextInput id="employeePwd" x="34" y="150" width="127" />
+								<s:Button x="181" y="150" label="添加" click="saveEmp(1)"/>
+								<s:Button x="261" y="150" label="修改" click="saveEmp(2)" enabled="{employee.id>0}"/>
+							</s:Group>
+							
+						</s:Group>
+					</s:NavigatorContent>
+					
+					<s:NavigatorContent label="服务器设置">
+						
+						<s:Button x="68" y="46" label="保存设置" />
+					</s:NavigatorContent>
+					
+					<s:NavigatorContent label="修改管理密码">
+						<s:Label x="10" y="10" text="管理员帐号:"/>
+						<s:TextInput id="managerUsername" x="78" y="6" width="148" text="@{model.manager.username}"/>
+						<s:Label x="10" y="40" text="管理员密码:"/>
+						<s:TextInput id="managerPassword" x="78" y="36" width="148" displayAsPassword="true"/>
+						<s:Button x="78" y="66" label="保存" click="saveManager()"/>
+						
+					</s:NavigatorContent>
+				</mx:ViewStack>		
+				
+				<s:Label right="10" bottom="10" text="CAT77 v1.0 企业沟通系统  蓝易实验室 版权所有  Copyright(C) 2011 lanelife.net. All Rights Reserved."/>
+				
+			</s:Panel>
+			
+			
+		</s:Group>
+	</s:Scroller>
+</s:Application>

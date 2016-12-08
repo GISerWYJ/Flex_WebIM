@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<actionScriptProperties analytics="false" mainApplicationPath="Main.mxml" projectUUID="e41d3b76-7162-4398-a3fb-ef06cfe69ea1" version="10">
+  <compiler additionalCompilerArguments="-services &quot;D:\Java\apache-tomcat-7.0.19\webapps\cat78\WEB-INF\flex\services-config.xml&quot; -locale zh_CN" autoRSLOrdering="true" copyDependentFiles="true" fteInMXComponents="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderLocation="D:/Java/apache-tomcat-7.0.19/webapps/cat78" outputFolderPath="bin-debug" removeUnusedRSL="true" rootURL="" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
+    <compilerSourcePath/>
+    <libraryPath defaultLinkType="0">
+      <libraryPathEntry kind="4" path="">
+        <excludedEntries>
+          <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/flex.swc" useDefaultLinkType="false"/>
+          <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/core.swc" useDefaultLinkType="false"/>
+        </excludedEntries>
+      </libraryPathEntry>
+      <libraryPathEntry kind="1" linkType="1" path="libs"/>
+    </libraryPath>
+    <sourceAttachmentPath/>
+  </compiler>
+  <applications>
+    <application path="Main.mxml"/>
+    <application path="Management.mxml"/>
+  </applications>
+  <modules>
+    <module application="src/Main.mxml" destPath="Movie_App.swf" optimize="true" sourcePath="src/Movie_App.mxml"/>
+    <module application="src/Main.mxml" destPath="Music_App.swf" optimize="true" sourcePath="src/Music_App.mxml"/>
+    <module application="src/Main.mxml" destPath="WebIM_App.swf" optimize="true" sourcePath="src/WebIM_App.mxml"/>
+  </modules>
+  <buildCSSFiles/>
+  <flashCatalyst validateFlashCatalystCompatibility="false"/>
+</actionScriptProperties>

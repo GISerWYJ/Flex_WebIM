@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:components="net.lanelife.cat77.view.components.*"
+		 height="{(fontButton.selected)?this.height+30:this.height-30}"
+		 creationComplete="init()">
+	
+	<fx:Script>
+		<![CDATA[
+			import flashx.textLayout.edit.IEditManager;
+			import flashx.textLayout.edit.ISelectionManager;
+			import flashx.textLayout.elements.DivElement;
+			import flashx.textLayout.elements.InlineGraphicElement;
+			
+			import mx.core.FlexGlobals;
+			
+			import net.lanelife.cat77.event.EmotChooseEvent;
+			
+			private function init():void
+			{
+				FlexGlobals.topLevelApplication.addEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler);
+			}
+			
+			private var mouseInEmot:Boolean;
+			private function mouseDownHandler(event:MouseEvent):void
+			{
+				if (event.target!=emotButton && !mouseInEmot)
+				{
+					emotButton.selected = false;
+				}
+			}
+			
+			protected function emotBox_emotChooseHandler(event:EmotChooseEvent):void
+			{
+				var sm:ISelectionManager = editorTextArea.textFlow.interactionManager;
+				IEditManager(sm).insertInlineGraphic(event.emot,50,50,"none");
+				sm.setFocus();
+				emotButton.selected = false;
+			}
+			
+			public function setEditorFocus():void
+			{
+				editorTextArea.setFocus();
+			}
+			
+			protected function editorTextArea_keyDownHandler(event:KeyboardEvent):void
+			{
+				if (event.ctrlKey && event.keyCode==13)
+				{
+					dispatchEvent(new Event("submit"));
+				}
+			}
+			
+			public function content():DivElement
+			{
+				if(editorTextArea.text=="")
+					return null;
+				
+				var tf:TextFlow = editorTextArea.textFlow;
+				var div:DivElement = new DivElement();
+				div.fontSize = fontsize.selectedItem;
+				div.color = fontcolor.selectedColor;
+				div.fontFamily = fontfamily.selectedItem;
+				if (bButton.selected)
+					div.fontWeight = "bold";
+				if (iButton.selected)
+					div.fontStyle = "italic";
+				if (uButton.selected)
+					div.textDecoration = "underline";
+				for(var i:Number=0; i<tf.flowComposer.numLines; i++)
+				{
+					div.addChild(tf.flowComposer.getLineAt(i).paragraph.deepCopy());
+				}
+				return div;
+			}
+			
+			public function clear():void
+			{
+				var num:Number = editorTextArea.textFlow.numChildren;
+				for(var i:Number=0; i<num; i++)
+				{
+					editorTextArea.textFlow.removeChildAt(0);
+				}
+				
+			}
+		]]>
+	</fx:Script>
+	<fx:Metadata>
+		[Event(name="submit", type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<s:VGroup width="100%" height="100%" gap="0">
+		<!--字体工具栏-->
+		<s:Group id="fontToolBar" width="100%" height="30" 
+				 visible="{fontButton.selected}" includeInLayout="{fontButton.selected}">
+			<!--字体工具栏背景-->
+			<s:Rect left="0" right="0" top="0" bottom="0">
+				<s:fill>  
+					<s:SolidColor color="#eff6fa"/>
+				</s:fill>
+			</s:Rect>
+			<s:Line left="0" right="0">
+				<s:stroke>
+					<s:SolidColorStroke color="#b7d3e7" weight="1" caps="square"/>
+				</s:stroke>
+			</s:Line>
+			<!--字体-->
+			<s:DropDownList id="fontfamily" focusEnabled="false" left="5" verticalCenter="0" width="100" selectedItem="宋体">
+				<s:dataProvider>
+					<s:ArrayList source="[宋体,Arial]" /> 
+				</s:dataProvider>
+			</s:DropDownList>
+			<!--字体大小-->
+			<s:DropDownList id="fontsize" focusEnabled="false" left="110" verticalCenter="0" width="50" selectedItem="12">
+				<s:dataProvider>
+					<s:ArrayList source="[8,9,10,11,12,13,14,15,16,17,18,19,20,21,22]" /> 
+				</s:dataProvider>
+			</s:DropDownList>
+			<!--字体颜色-->
+			<mx:ColorPicker id="fontcolor" focusEnabled="false" left="165" verticalCenter="0" width="20" height="20" />
+			<!--粗体-->
+			<s:ToggleButton id="bButton" left="200" verticalCenter="0" width="24" height="20"
+							icon="@Embed(source='assets/icons/300.png')" focusEnabled="false"
+							skinClass="net.lanelife.cat77.view.skins.IconToggleButtonSkin"/>
+			<!--斜体-->
+			<s:ToggleButton id="iButton" left="226" verticalCenter="0" width="24" height="20"
+							icon="@Embed(source='assets/icons/301.png')" focusEnabled="false"
+							skinClass="net.lanelife.cat77.view.skins.IconToggleButtonSkin"/>
+			<!--下划线-->
+			<s:ToggleButton id="uButton" left="252" verticalCenter="0" width="24" height="20"
+							icon="@Embed(source='assets/icons/302.png')" focusEnabled="false"
+							skinClass="net.lanelife.cat77.view.skins.IconToggleButtonSkin"/>
+		</s:Group>
+		<!--编辑器工具栏-->
+		<s:Group width="100%" height="27">
+			<!--编辑器工具栏背景-->
+			<s:Rect left="0" top="0" right="0" bottom="0">
+				<s:fill>  
+					<s:SolidColor color="#ffffff" alpha="0.8"/>
+				</s:fill>
+			</s:Rect>
+			<!--编辑器按钮组-->
+			<s:HGroup left="6" top="2">
+				<s:ToggleButton id="fontButton" 
+								width="26" height="22"
+								focusEnabled="false"
+								icon="@Embed(source='assets/icons/200.png')"
+								skinClass="net.lanelife.cat77.view.skins.IconToggleButtonSkin"/>
+				<s:ToggleButton id="emotButton"
+								width="26" height="22"
+								focusEnabled="false"
+								icon="@Embed(source='assets/icons/201.png')"
+								skinClass="net.lanelife.cat77.view.skins.IconToggleButtonSkin"/>
+			</s:HGroup>
+		</s:Group>
+		
+		<s:TextArea id="editorTextArea" 
+					width="100%" height="100%"
+					paddingLeft="5"
+					borderVisible="false" focusAlpha="0"
+					keyDown="editorTextArea_keyDownHandler(event)">
+			<s:textFlow>
+				<s:TextFlow fontSize="{fontsize.selectedItem}" 
+							color="{fontcolor.selectedColor}"
+							fontFamily="{fontfamily.selectedItem}"
+							fontWeight="{(bButton.selected)?'bold':'normal'}"
+							fontStyle="{(iButton.selected)?'italic':'normal'}"
+							textDecoration="{uButton.selected?'underline':'none'}"/>
+			</s:textFlow>
+		</s:TextArea>
+	</s:VGroup>
+	
+	
+	<components:EmotBox id="emotBox" visible="{emotButton.selected}" left="5" bottom="120"
+						emotChoose="emotBox_emotChooseHandler(event)"
+						mouseOver="this.mouseInEmot=true" mouseOut="this.mouseInEmot=false"/>
+	
+	
+	
+	
+	
+</s:Group>

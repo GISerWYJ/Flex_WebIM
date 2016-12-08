@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("spark.components.ButtonBarButton")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			protected function gr_creationComplete(evt:FlexEvent):void {
+				var dataObj:Object = hostComponent.data;
+				img.source = dataObj.icon;
+			}
+			
+		]]>
+	</fx:Script>
+	<!-- states -->
+	<s:states>
+		<s:State name="disabledAndSelected" stateGroups="selectedStates" />
+		<s:State name="downAndSelected" stateGroups="selectedStates" />
+		<s:State name="overAndSelected" stateGroups="selectedStates" />
+		<s:State name="upAndSelected" stateGroups="selectedStates" />
+		<s:State name="disabled" />
+		<s:State name="down" />
+		<s:State name="over" />
+		<s:State name="up" />
+	</s:states>
+	
+	<!-- SkinParts
+	name=labelDisplay, type=spark.components.supportClasses.TextBase, required=false
+	-->
+	
+	<s:Rect left="0" right="0" top="0" bottom="0" height="23" radiusX="2" visible="false" visible.selectedStates="true">  
+		<s:fill>  
+			<s:LinearGradient rotation="90">  
+				<s:entries>  
+					<s:GradientEntry color="#3f98d9" />  
+					<s:GradientEntry color="#3086c6" />
+				</s:entries>  
+			</s:LinearGradient>  
+		</s:fill>  
+	</s:Rect> 
+	
+	<s:Label id="labelDisplay"
+			 verticalAlign="middle"
+			 left="20" right="10" height="100%" color.selectedStates="#ffffff" color.down="#3086c6" color.over="#3f98d9">
+	</s:Label>
+	
+	<s:Graphic id="gr"
+			   creationComplete="gr_creationComplete(event)" verticalCenter="0" left="5">
+		<s:BitmapImage id="img"/>
+	</s:Graphic>
+</s:Skin>

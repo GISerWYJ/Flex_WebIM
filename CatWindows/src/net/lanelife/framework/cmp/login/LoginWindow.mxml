@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cw:DesktopWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				  xmlns:s="library://ns.adobe.com/flex/spark" 
+				  xmlns:mx="library://ns.adobe.com/flex/mx" 
+				  xmlns:cw="net.lanelife.framework.cw.*" 
+				  xmlns:components="net.lanelife.cat77.view.components.*"
+				  title="用户登录"
+				  taskbarButtonVisible="false"
+				  width="350" height="265" verticalCenter="0" horizontalCenter="0"
+				  minimizable="false" maximizable="false" draggable="false" resizable="false"
+				  initialize="preInit()"
+				  creationComplete="init()" xmlns:login="net.lanelife.framework.cmp.login.*" >
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			import net.lanelife.framework.cw.Prompt;
+			
+			[Bindable]
+			private var accounts:ArrayCollection;
+			
+			public var isAutoLogin:Boolean = true; //控制是否自动登录
+			
+			private function preInit():void {
+				this.addEventListener(LoginEvent.LOGIN_SUCCESS, loginCheckSuccessfulHandler);
+				this.addEventListener(LoginEvent.LOGIN_FAULT, loginCheckUnsuccessfulHandler);
+				
+				this.addEventListener(LoginEvent.CONNECT_SERVER_FAULT, connectServerFault);
+			}
+			
+			protected function init():void
+			{
+				accounts = AccountManager.getAccounts();
+				
+				var autoLoginAccount:Object = AccountManager.getAutoLoginAccount();
+				if(autoLoginAccount != null) {// 进行自动登录
+					
+					userid.selectedItem = autoLoginAccount;
+					userid.text = autoLoginAccount.userid;
+					
+					password.displayAsPassword = true;
+					password.text = autoLoginAccount.password;
+					
+					status.selectedIndex = (autoLoginAccount.status==1)?0:1;
+					
+					rememberPassword.selected = true;
+					autoLogin.selected = true;
+					
+					if (isAutoLogin)
+						login();
+				}
+				
+				if (userid.selectedItem==undefined) { 
+					//如果没有自动登录的帐号则选择第一个帐号（按最后登录时间排序）
+					var lastLoginAccount:Object = AccountManager.getLastLoginAccount();
+					if(lastLoginAccount == null) return;
+					
+					userid.selectedItem = lastLoginAccount;
+					userid.text = lastLoginAccount.userid;
+					status.selectedIndex = (lastLoginAccount.status==1)?0:1;
+					if (lastLoginAccount.rememberPassword) {
+						password.displayAsPassword = true;
+						password.text = lastLoginAccount.password;
+						rememberPassword.selected = true;
+					}
+				}
+				
+			}
+			
+			/**
+			 * 登录验证成功后将帐号加入到共享对象中，并分发套接字连接事件。
+			 */
+			private function loginCheckSuccessfulHandler(event:LoginEvent):void
+			{
+
+				var emp:Object = new Object();
+				emp.userid = event.account;
+				emp.username = event.userName;
+				emp.face = event.face;
+				emp.lastLoginTime = new Date();
+				emp.status = status.selectedItem.status;
+				emp.rememberPassword = rememberPassword.selected;
+				if (rememberPassword.selected) {
+					emp.password = password.text;
+				}
+				emp.autoLogin = autoLogin.selected;
+				
+				AccountManager.addAccount(emp);
+				
+				message.text = "正在连接服务器...";
+			}
+			
+			private function loginCheckUnsuccessfulHandler(event:Event):void
+			{
+				waitMove.stop();
+				this.currentState = "normal";
+				Prompt.show(this,
+					"您输入的帐号或密码不正确,原因可能是:\r\n帐号错误;忘记密码;未区分字母大小写\r\n\r\n如果您的密码丢失或遗忘,请联系管理员!",
+					"验证错误",
+					Prompt.OK,
+					function():void{
+						password.text = "";
+						password.setFocus();
+					},
+					"images/plaint.png"
+				);
+			}
+			
+			private function connectServerFault(event:Event):void {
+				waitMove.stop();
+				this.currentState = "normal";
+				Prompt.show(this,"服务器连接失败,请联系管理员!","错误提示");
+			}
+			
+			
+			/**
+			 * 登录，分发登录事件
+			 * 
+			 */
+			private function login():void
+			{
+				Prompt.buttonAlign = "center";
+				if (userid.text=="" || userid.text=="请输入帐号")
+				{
+					Prompt.show(this,"请您输入帐号后再登录。","提示",Prompt.OK,null,"images/plaint.png");
+				}
+				else if (password.text=="" || password.text=="请输入密码")
+				{
+					Prompt.show(this,"请您输入密码后再登录。","提示",Prompt.OK,null,"images/plaint.png");
+				}
+				else
+				{
+					this.currentState = "login";
+					waitMove.repeatCount = 0;
+					waitMove.repeatDelay = 1000;
+					waitMove.play();
+					
+					var loginEvent:LoginEvent = new LoginEvent(LoginEvent.LOGIN);
+					loginEvent.account = userid.text;
+					loginEvent.password = password.text;
+					dispatchEvent(loginEvent);
+				}
+			}
+			
+			
+			
+			public function loginFaultHandler():void
+			{
+				waitMove.stop();
+				this.currentState = "normal";
+				Prompt.show(this,"服务器错误,请联系管理员!","错误提示");
+			}
+			
+			protected function userid_keyDownHandler(event:KeyboardEvent):void
+			{
+				if (event.charCode==13 && userid.text!='')
+				{
+					if (password.text=='请输入密码')
+						password.setFocus();
+					else
+						login();
+				}
+			}
+			
+			protected function password_enterHandler(event:FlexEvent):void
+			{
+				if (userid.text=='请输入帐号')
+					userid.setFocus();
+				else if (password.text!='')
+					login();
+			}
+			
+			protected function userid_accountChangeHandler(event:Event):void
+			{
+				if (event.target.selectedItem!=undefined)
+				{
+					status.selectedIndex = (event.target.selectedItem.status==1)?0:1;
+					if (event.target.selectedItem.rememberPassword)
+					{
+						password.displayAsPassword = true;
+						password.text = event.target.selectedItem.password;
+						rememberPassword.selected = true;
+					}
+					else
+					{
+						password.text = "请输入密码";
+						password.displayAsPassword = false;
+						rememberPassword.selected = false;
+					}
+				}
+				else
+				{
+					password.text = "请输入密码";
+					password.displayAsPassword = false;
+					rememberPassword.selected = false;
+				}
+				autoLogin.selected = false;
+			}
+			
+			public function remove():void
+			{
+				super.close();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<s:Parallel>
+			<s:Move id="waitMove" yFrom="0" yTo="66" duration="3000" target="{waitRect}" />
+		</s:Parallel>
+		
+	</fx:Declarations>
+	
+	<cw:states>
+		<s:State name="normal" />
+		<s:State name="login" />
+	</cw:states>
+	
+	
+	<s:Group left="15" top="90" width="82" height="82">
+		<s:Rect left="0" top="0" right="0" bottom="0" radiusX="2">
+			<s:fill>
+				<s:LinearGradient rotation="90">  
+					<s:entries>  
+						<s:GradientEntry color="#f6f7f9" />  
+						<s:GradientEntry color="#a9adb0" />
+					</s:entries>  
+				</s:LinearGradient>  
+			</s:fill>
+		</s:Rect>
+		<s:Rect left="1" top="1" right="1" bottom="1" radiusX="2">
+			<s:fill>
+				<s:SolidColor color="#ffffff"/>
+			</s:fill>
+		</s:Rect>
+		<s:Image id="face" left="2" top="2" right="2" bottom="2" smooth="true" 
+				 source="{(userid.selectedItem!=undefined)?userid.selectedItem.face:'images/face/default.png'}" />
+		<s:Rect id="waitRect" x="0" y="0" left="1" right="1" height="15" includeIn="login">
+			<s:fill>
+				<s:SolidColor color="#ffffff" alpha="0.5"/>
+			</s:fill>
+		</s:Rect>
+	</s:Group>
+	
+	
+	<s:Group left="112" top="92" right="15" includeIn="normal">
+		
+		<login:AccountDropDownList id="userid"
+										left="0" top="0" right="0" height="26"
+										textField="userid"
+										skinClass="net.lanelife.framework.cmp.login.AccountDropDownListSkin"
+										keyDown="userid_keyDownHandler(event)" 
+										accountChange="userid_accountChangeHandler(event)"
+										dataProvider="{accounts}" />
+		
+		<s:TextInput id="password"
+					 text="请输入密码"
+					 left="0" top="35" right="0" height="26"
+					 color="{password.text=='请输入密码' ? 0x808080 : 0x000000}"
+					 focusIn="if(password.text=='请输入密码'){password.text='';password.displayAsPassword=true}"
+					 focusOut="if(password.text==''){password.text='请输入密码';password.displayAsPassword=false}"
+					 enter="password_enterHandler(event)"/>
+		
+		<s:DropDownList id="status"  
+						selectedIndex="0"
+						left="0" top="67" width="35" height="22"
+						skinClass="net.lanelife.framework.cmp.login.StatusDropDownListSkin">
+			<s:dataProvider>
+				<s:ArrayList>
+					<fx:Object status="1" text="我在线上" icon="@Embed(source='assets/icons/online.png')"/>
+					<fx:Object status="2" text="隐身" icon="@Embed(source='assets/icons/stealth.png')"/>
+				</s:ArrayList>
+			</s:dataProvider>
+		</s:DropDownList>
+		
+		<s:CheckBox id="rememberPassword" 
+					top="69" right="85" 
+					label="记住密码" change="if(!rememberPassword.selected){autoLogin.selected=false}" />
+		
+		<s:CheckBox id="autoLogin" 
+					top="69" right="0" 
+					label="自动登录" change="if(autoLogin.selected){rememberPassword.selected=true}" />
+		
+	</s:Group>
+	
+	<s:Group left="112" top="95" includeIn="login">
+		<s:Label text="{userid.text}" />
+		<s:Label id="message" text="正在验证帐号..." top="25" color="#666666" />
+	</s:Group>
+	
+	<s:Label left="5" bottom="10" text="Sky 版权所有" alpha="0.5" />
+	
+	<s:Button id="loginButton" 
+			  label="登 录"
+			  right="15" bottom="6" width="70" 
+			  enabled.login="false"
+			  click="login()" />
+	
+</cw:DesktopWindow>

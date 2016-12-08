@@ -1,0 +1,74 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace windows "net.lanelife.cat77.view.windows.*";
+@namespace cw "net.lanelife.framework.cw.*";
+
+/*s|Application {
+	skin-class:ClassReference("net.lanelife.cat77.view.skins.AppliactionSkin");
+}*/
+
+s|Label {
+	font-family:宋体;
+	fontSize:12px;
+}
+
+s|Button {
+	skin-class:ClassReference("net.lanelife.framework.cw.skins.ButtonSkin");
+}
+
+s|Scroller {
+	skin-class:ClassReference("net.lanelife.framework.skin.mac.scrollbar.ScrollerSkin");
+}
+
+s|TextInput {
+	font-family:宋体;
+	fontSize:12px;
+	focus-color:#85e4ff;
+	skin-class:ClassReference("net.lanelife.cat77.view.skins.TextInputSkin");
+}
+
+s|TextArea {
+	font-family:宋体;
+	fontSize:12px;
+	focus-color:#85e4ff;
+	skin-class:ClassReference("net.lanelife.cat77.view.skins.TextAreaSkin");
+}
+
+s|RichEditableText {
+	font-family:宋体;
+	fontSize:12px;	
+}
+
+s|CheckBox {
+	skin-class:ClassReference("net.lanelife.cat77.view.skins.CheckBoxSkin");
+}
+
+s|DropDownList {
+	skin-class:ClassReference("net.lanelife.cat77.view.skins.DropDownListSkin");
+}
+
+
+cw|Window {
+	skin-class:ClassReference("net.lanelife.cat77.view.skins.WindowSkin");
+}
+
+windows|CatIMLoginWindow {
+	skin-class:ClassReference("net.lanelife.cat77.view.skins.LoginWindowSkin");
+}
+
+windows|ChatWindow {
+	skin-class:ClassReference("net.lanelife.cat77.view.skins.ChatWindowSkin");
+}
+
+windows|TeamChatWindow {
+	skin-class:ClassReference("net.lanelife.cat77.view.skins.TeamChatWindowSkin");
+}
+
+windows|MessageBox {
+	skin-class:ClassReference("net.lanelife.cat77.view.skins.MessageBoxSkin");
+}
+
+.bglist s|Scroller s|HScrollBar {
+	skin-class:ClassReference("net.lanelife.framework.desktop.setting.HScrollBarSkin");
+}

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("spark.components.VScrollBar")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="inactive" />
+		<s:State name="disabled" />
+		<s:State name="normal" />
+	</s:states>
+	
+	<s:Rect width="16" height="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="#111520" weight="1" caps="square"/>
+		</s:stroke>
+	</s:Rect>
+	<s:Rect width="13" height="100%" left="1" top="1" right="1" bottom="1">
+		<s:stroke>
+			<s:SolidColorStroke color="#8eb2d6" weight="1" caps="square"/>
+		</s:stroke>
+	</s:Rect>
+	<s:Rect width="11" height="100%" left="2" top="2" right="2" bottom="2">
+		<s:fill>  
+			<s:LinearGradient rotation="90">  
+				<s:entries>  
+					<s:GradientEntry color="#3f678f" />  
+					<s:GradientEntry color="#1d64ac" />
+				</s:entries>  
+			</s:LinearGradient>  
+		</s:fill> 
+	</s:Rect>
+	
+	<s:Button id="decrementButton"
+			  enabled.inactive="false" focusEnabled="false" 
+			  skinClass="net.lanelife.framework.cw.skins.TaskbarVScrollBarDecrementButtonSkin" />
+	
+	<s:Button id="incrementButton" bottom="0"
+			  enabled.inactive="false" focusEnabled="false" 
+			  skinClass="net.lanelife.framework.cw.skins.TaskbarVScrollBarIncrementButtonSkin" />
+	
+	<!-- SkinParts
+	name=incrementButton, type=spark.components.Button, required=false
+	name=track, type=spark.components.Button, required=false
+	name=thumb, type=spark.components.Button, required=false
+	name=decrementButton, type=spark.components.Button, required=false
+	-->
+</s:Skin>

@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 creationComplete="init()">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	
+	<fx:Metadata>
+		[Event(name="cut",type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import mx.core.FlexGlobals;
+			import mx.events.SandboxMouseEvent;
+			
+			import net.lanelife.framework.cw.CursorMgr;
+			
+			private var offsetX:Number;
+			private var offsetY:Number;
+			
+			private var mouseState:Number = 0;
+			private var resizeObj:Object;
+			private var oWidth:Number = 0;
+			private var oHeight:Number = 0;
+			private var oX:Number = 0;
+			private var oY:Number = 0;
+			private var oMousePoint:Point = new Point();
+			private var minSize:Number = 20;
+			
+			public var cutObject:InteractiveObject;
+			
+			private function init():void
+			{
+				this.addEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler);
+				this.addEventListener(MouseEvent.MOUSE_OUT, mouseOutHandler);
+				FlexGlobals.topLevelApplication.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+				FlexGlobals.topLevelApplication.addEventListener(MouseEvent.MOUSE_MOVE, resizeHandler);
+			}
+			
+			private function mouseOutHandler(event:MouseEvent):void
+			{
+				if(this.resizeObj == null){
+					CursorMgr.setCursor(null, 0, 0);
+					this.mouseState = 0;
+				}
+			}
+			
+			private function onMouseUp(event:MouseEvent):void
+			{
+				CursorMgr.setCursor(null, 0, 0);
+				this.mouseState = 0;
+				this.resizeObj = null;
+			}
+			
+			private function mouseDownHandler(event:MouseEvent):void
+			{
+				var sbRoot:DisplayObject = systemManager.getSandboxRoot();
+				if (this.mouseState != 0) {
+					this.resizeObj = event.currentTarget;
+					this.resizeObj.oWidth = this.resizeObj.width;
+					this.resizeObj.oHeight = this.resizeObj.height;
+					this.resizeObj.oX = this.resizeObj.x;
+					this.resizeObj.oY = this.resizeObj.y;
+					this.resizeObj.oMousePoint.x = this.resizeObj.mouseX;
+					this.resizeObj.oMousePoint.y = this.resizeObj.mouseY;
+					this.resizeObj.oMousePoint = this.localToGlobal(this.resizeObj.oMousePoint);
+				} else {
+					this.offsetX = event.stageX - x;
+					this.offsetY = event.stageY - y;
+					sbRoot.addEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler, true);
+				}
+				sbRoot.addEventListener(MouseEvent.MOUSE_UP, mouseUpHandler, true);
+				sbRoot.addEventListener(SandboxMouseEvent.MOUSE_UP_SOMEWHERE, mouseUpHandler)
+				systemManager.deployMouseShields(true); 
+			}
+			protected function mouseMoveHandler(event:MouseEvent):void
+			{
+				var afterBounds:Rectangle = new Rectangle(Math.round(event.stageX - this.offsetX),Math.round(event.stageY - this.offsetY),width,height);
+				if (afterBounds.y < 0) {
+					afterBounds.y = 0;
+				} else if(afterBounds.y>(this.cutObject.height-this.height)) {
+					afterBounds.y = this.cutObject.height-this.height
+				}
+				if (afterBounds.x < 0) {
+					afterBounds.x = 0;
+				} else if(afterBounds.x>(this.cutObject.width-this.width)) {
+					afterBounds.x = this.cutObject.width-this.width
+				}
+				this.x = afterBounds.x;
+				this.y = afterBounds.y;
+			}	
+			protected function mouseUpHandler(event:Event):void
+			{
+				dispatchEvent(new Event("cut"));
+				var sbRoot:DisplayObject = systemManager.getSandboxRoot();
+				sbRoot.removeEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler, true);
+				sbRoot.removeEventListener(MouseEvent.MOUSE_UP, mouseUpHandler, true);
+				sbRoot.removeEventListener(SandboxMouseEvent.MOUSE_UP_SOMEWHERE, mouseUpHandler);
+				this.offsetX = NaN;
+				this.offsetY = NaN;
+			}
+
+			protected function skinnablecontainer_mouseOutHandler(event:MouseEvent):void
+			{
+				if(this.resizeObj == null){	
+					CursorMgr.setCursor(null,0 ,0);
+					this.mouseState = 0;
+				}
+			}
+			
+			protected function skinnablecontainer1_mouseOverHandler(event:MouseEvent):void
+			{
+				if(this.resizeObj == null){	
+					CursorMgr.setCursor(CursorMgr.NWSE, -6, -6);
+					this.mouseState = 1;
+				}
+			}
+
+			protected function skinnablecontainer2_mouseOverHandler(event:MouseEvent):void
+			{
+				if(this.resizeObj == null){	
+					CursorMgr.setCursor(CursorMgr.NS, -6, -12);
+					this.mouseState = 2;
+				}
+			}
+
+			protected function skinnablecontainer3_mouseOverHandler(event:MouseEvent):void
+			{
+				if(this.resizeObj == null){	
+					CursorMgr.setCursor(CursorMgr.NESW, -6, -8);
+					this.mouseState = 3;
+				}
+			}
+
+			protected function skinnablecontainer4_mouseOverHandler(event:MouseEvent):void
+			{
+				if(this.resizeObj == null){	
+					CursorMgr.setCursor(CursorMgr.EW, -12, -6);
+					this.mouseState = 4;
+				}
+			}
+
+			protected function skinnablecontainer5_mouseOverHandler(event:MouseEvent):void
+			{
+				if(this.resizeObj == null){	
+					CursorMgr.setCursor(CursorMgr.NWSE, -8, -8);
+					this.mouseState = 5;
+				}
+			}
+
+			protected function skinnablecontainer6_mouseOverHandler(event:MouseEvent):void
+			{
+				if(this.resizeObj == null){	
+					CursorMgr.setCursor(CursorMgr.NS, -6, -12);
+					this.mouseState = 6;
+				}
+			}
+
+			protected function skinnablecontainer7_mouseOverHandler(event:MouseEvent):void
+			{
+				if(this.resizeObj == null){	
+					CursorMgr.setCursor(CursorMgr.NESW, -8, -6);
+					this.mouseState = 7;
+				}
+			}
+
+			protected function skinnablecontainer8_mouseOverHandler(event:MouseEvent):void
+			{
+				if(this.resizeObj == null){	
+					CursorMgr.setCursor(CursorMgr.EW, -12, -6);
+					this.mouseState = 8;
+				}
+			}
+			
+			private function resizeHandler(event:MouseEvent):void{
+				if(this.resizeObj != null){	
+					var px:Number = FlexGlobals.topLevelApplication.mouseX - this.resizeObj.oMousePoint.x;
+					var py:Number = FlexGlobals.topLevelApplication.mouseY - this.resizeObj.oMousePoint.y;
+					
+					var nx:Number;
+					var ny:Number;
+					var nw:Number;
+					var nh:Number;
+					
+					switch(this.mouseState){
+						case 1:
+							nx = this.resizeObj.oX + px;
+							ny = this.resizeObj.oY + py;
+							nw = this.resizeObj.oWidth - px;
+							nh = this.resizeObj.oHeight - py;
+							if (nh > nw)
+							{
+								nx = nx - (nh - nw);
+								nw = nh;
+							}
+							if (nw > nh)
+							{
+								ny = ny - (nw - nh);
+								nh = nw;
+							}
+							break;
+						case 2:
+							nx = this.resizeObj.oX;
+							ny = this.resizeObj.oY + py;
+							nh = this.resizeObj.oHeight - py;
+							nw = nh;
+							nx = nx + (py/2);
+							break;
+						case 3:
+							nx = this.resizeObj.oX;
+							ny = this.resizeObj.oY + py;
+							nw = this.resizeObj.oWidth + px;
+							nh = this.resizeObj.oHeight - py;
+							if (nh > nw)
+							{
+								nw = nh;
+							}
+							if (nw > nh)
+							{
+								ny = ny - (nw - nh);
+								nh = nw;
+							}
+							break;
+						case 4:
+							nx = this.resizeObj.oX;
+							ny = this.resizeObj.oY;
+							nw = this.resizeObj.oWidth + px;
+							nh = nw;
+							ny = ny - (px/2);
+							break;
+						case 5:
+							nx = this.resizeObj.oX;
+							ny = this.resizeObj.oY;
+							nw = this.resizeObj.oWidth + px;
+							nh = this.resizeObj.oHeight + py;
+							if (nh > nw)
+							{
+								nw = nh;
+							}
+							if (nw > nh)
+							{
+								nh = nw;
+							}
+							break;
+						case 6:
+							nx = this.resizeObj.oX;
+							ny = this.resizeObj.oY;
+							nh = this.resizeObj.oHeight + py;
+							nw = nh;
+							nx = nx - (py/2);
+							break;
+						case 7:
+							nx = this.resizeObj.oX + px;
+							ny = this.resizeObj.oY;
+							nw = this.resizeObj.oWidth - px;
+							nh = this.resizeObj.oHeight + py;
+							if (nh > nw)
+							{
+								nx = nx - (nh - nw);
+								nw = nh;
+							}
+							if (nw > nh)
+							{
+								nh = nw;
+							}
+							break;
+						case 8:
+							nx = this.resizeObj.oX + px;
+							ny = this.resizeObj.oY;
+							nw = this.resizeObj.oWidth - px;
+							nh = nw;
+							ny = ny + (px/2);
+							break;
+					}
+					nx = Math.floor(nx);
+					ny = Math.floor(ny);
+					if (nw>=this.minSize && nh>=this.minSize && nx>=0 && ny>=0 && (nx+nw)<=this.cutObject.width && (ny+nh)<=this.cutObject.height)
+					{
+						this.resizeObj.x = nx;
+						this.resizeObj.width = nw;
+						this.resizeObj.y = ny;
+						this.resizeObj.height = nh;
+					}
+				}
+			}
+
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%">
+		<s:stroke>
+			<s:SolidColorStroke color="#0a7cca" weight="1" caps="square"/>
+		</s:stroke>
+	</s:Rect>
+	
+	<s:SkinnableContainer backgroundColor="#0a7cca" width="5" height="5" left="-2" top="-2"
+						  mouseOver="skinnablecontainer1_mouseOverHandler(event)"
+						  mouseOut="skinnablecontainer_mouseOutHandler(event)"/>
+	<s:SkinnableContainer backgroundColor="#0a7cca" width="5" height="5" top="-2" horizontalCenter="0"
+						  mouseOver="skinnablecontainer2_mouseOverHandler(event)"
+						  mouseOut="skinnablecontainer_mouseOutHandler(event)"/>
+	<s:SkinnableContainer backgroundColor="#0a7cca" width="5" height="5" right="-2" top="-2"
+						  mouseOver="skinnablecontainer3_mouseOverHandler(event)"
+						  mouseOut="skinnablecontainer_mouseOutHandler(event)"/>
+	<s:SkinnableContainer backgroundColor="#0a7cca" width="5" height="5" right="-2" verticalCenter="0"
+						  mouseOver="skinnablecontainer4_mouseOverHandler(event)"
+						  mouseOut="skinnablecontainer_mouseOutHandler(event)"/>
+	<s:SkinnableContainer backgroundColor="#0a7cca" width="5" height="5" right="-2" bottom="-2"
+						  mouseOver="skinnablecontainer5_mouseOverHandler(event)"
+						  mouseOut="skinnablecontainer_mouseOutHandler(event)"/>
+	<s:SkinnableContainer backgroundColor="#0a7cca" width="5" height="5" bottom="-2" horizontalCenter="0"
+						  mouseOver="skinnablecontainer6_mouseOverHandler(event)"
+						  mouseOut="skinnablecontainer_mouseOutHandler(event)"/>
+	<s:SkinnableContainer backgroundColor="#0a7cca" width="5" height="5" left="-2" bottom="-2"
+						  mouseOver="skinnablecontainer7_mouseOverHandler(event)"
+						  mouseOut="skinnablecontainer_mouseOutHandler(event)"/>
+	<s:SkinnableContainer backgroundColor="#0a7cca" width="5" height="5" left="-2" verticalCenter="0"
+						  mouseOver="skinnablecontainer8_mouseOverHandler(event)"
+						  mouseOut="skinnablecontainer_mouseOutHandler(event)"/>
+</s:Group>

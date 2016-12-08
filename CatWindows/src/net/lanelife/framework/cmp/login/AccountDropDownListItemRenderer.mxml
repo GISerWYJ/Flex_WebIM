@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				autoDrawBackground="false" height.normal="24" height="44">
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="selectedAndShowsCaret" stateGroups="selectedAndShowsCaretStates" />
+		<s:State name="hoveredAndShowsCaret" stateGroups="selectedAndShowsCaretStates" />
+		<s:State name="normalAndShowsCaret" stateGroups="selectedAndShowsCaretStates" />
+		<s:State name="selected" />
+		<s:State name="hovered" />
+	</s:states>
+	
+	<s:transitions>
+		<s:Transition fromState="normal" toState="hovered">
+			<s:Parallel>
+				<s:Resize heightFrom="25" heightTo="44" target="{this}" duration="250" />
+				<s:Resize heightFrom="20" heightTo="40" target="{face}" duration="250" />
+			</s:Parallel>
+		</s:Transition>
+		<s:Transition toState="normal">
+			<s:Parallel effectStart="this.mouseEnabled=false;this.mouseChildren=false"
+						effectEnd="this.mouseEnabled=true;this.mouseChildren=true">
+				<s:Resize heightFrom="44" heightTo="25" target="{this}" duration="250" />
+				<s:Resize heightFrom="40" heightTo="20" target="{face}" duration="250" />
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+	
+	<s:Rect left="1" right="1" top="1" bottom="1" radiusX="1" 
+			visible="false" visible.selectedAndShowsCaretStates="true">  
+		<s:fill>  
+			<s:LinearGradient rotation="90">  
+				<s:entries>  
+					<s:GradientEntry color="#3f98d8" />  
+					<s:GradientEntry color="#3188c7" />
+				</s:entries>  
+			</s:LinearGradient>  
+		</s:fill>  
+	</s:Rect>
+	
+	<s:Rect left="1" right="1" top="1" bottom="1" radiusX="1"
+			visible="false" visible.hovered="true">  
+		<s:fill>  
+			<s:LinearGradient rotation="90">  
+				<s:entries>  
+					<s:GradientEntry color="#8bcdee" />  
+					<s:GradientEntry color="#7dc4e8" />
+				</s:entries>   
+			</s:LinearGradient>  
+		</s:fill>  
+	</s:Rect>
+	
+	<s:HGroup top="2" bottom="2" left="5" right="5">
+		<s:Image id="face" source="{data.face}" smooth="true" 
+				 width.normal="20" height.normal="20" width="40" height="40" />
+		<s:Group height="100%">
+			<s:Label text="{data.username}" 
+					 visible.normal="false" includeInLayout.normal="false" top="3"/>
+			<s:Label text="{data.userid}" bottom="3" color.selectedAndShowsCaretStates="#ffffff"/>
+		</s:Group>
+	</s:HGroup>
+	
+	
+</s:ItemRenderer>

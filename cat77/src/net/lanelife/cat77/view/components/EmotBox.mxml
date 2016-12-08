@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="438" height="243" borderColor="#89b8e4"
+		 creationComplete="init()" show="showHandler()">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import net.lanelife.cat77.event.EmotChooseEvent;
+			
+			import spark.events.IndexChangeEvent;
+			
+			[Bindable]
+			private var emotData:ArrayCollection;
+			
+			protected function init():void
+			{
+				emotService.send();
+			}
+			
+			protected function emotService_resultHandler(event:ResultEvent):void
+			{
+				emotData = event.result.emots.emot;
+			}
+			
+			protected function emotList_changeHandler(event:IndexChangeEvent):void
+			{
+				dispatchEvent(new EmotChooseEvent("emotChoose","images/emot/default/"+emotList.selectedItem.source));
+			}
+			
+			protected function showHandler():void
+			{
+				emotList.selectedIndex = -1;
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Metadata>
+		[Event(name="emotChoose", type="net.lanelife.cat77.event.EmotChooseEvent")]
+	</fx:Metadata>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<s:HTTPService id="emotService" 
+					   url="images/emot/default/data.xml"
+					   result="emotService_resultHandler(event)" />
+	</fx:Declarations>
+	
+	<s:List id="emotList" 
+			left="5" top="5" bottom="5" right="5"
+			borderColor="#dfe6f6" selectionColor="#ffffff" rollOverColor="#97dbfb"
+			itemRenderer="net.lanelife.cat77.view.renderer.EmotItemRenderer" 
+			dataProvider="{emotData}"
+			change="emotList_changeHandler(event)"
+			focusEnabled="false">
+		<s:layout>
+			<s:TileLayout verticalGap="5" horizontalGap="5"/>
+		</s:layout>
+	</s:List>
+</s:BorderContainer>

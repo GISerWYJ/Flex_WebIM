@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		width="120" height="40">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("net.lanelife.framework.cw.TaskbarButton")]
+	</fx:Metadata>
+	<!-- states -->
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="down" />
+		<s:State name="over" />
+		<s:State name="up" />
+		<s:State name="active" />
+		<s:State name="flashes" />
+	</s:states>
+	
+	<s:transitions>
+		<s:Transition fromState="up" toState="over">
+			<s:Parallel>
+				<s:AnimateColor colorFrom="#66a8ca" colorTo="#9ee2ff"  target="{gradientBefore}" />
+				<s:AnimateColor colorFrom="#267eae" colorTo="#71cff9" target="{gradientMiddle}" />
+				<s:AnimateColor colorFrom="#1a79af" colorTo="#50b1df" target="{gradientAfter}" />
+			</s:Parallel>
+		</s:Transition>
+		<s:Transition fromState="over" toState="up">
+			<s:Parallel>
+				<s:AnimateColor colorFrom="#9ee2ff" colorTo="#66a8ca"  target="{gradientBefore}" />
+				<s:AnimateColor colorFrom="#71cff9" colorTo="#267eae" target="{gradientMiddle}" />
+				<s:AnimateColor colorFrom="#50b1df" colorTo="#1a79af" target="{gradientAfter}" />
+			</s:Parallel>
+		</s:Transition>
+		<s:Transition fromState="over" toState="down">
+			<s:Parallel>
+				<s:AnimateColor colorFrom="#9ee2ff" colorTo="#b3d9ed"  target="{gradientBefore}" />
+				<s:AnimateColor colorFrom="#71cff9" colorTo="#85caec" target="{gradientMiddle}" />
+				<s:AnimateColor colorFrom="#50b1df" colorTo="#ccf0ff" target="{gradientAfter}" />
+			</s:Parallel>
+		</s:Transition>
+		<s:Transition toState="active">
+			<s:Parallel>
+				<s:AnimateColor colorFrom="#9ee2ff" colorTo="#9ee2ff"  target="{gradientBefore}" />
+				<s:AnimateColor colorFrom="#71cff9" colorTo="#71cff9" target="{gradientMiddle}" />
+				<s:AnimateColor colorFrom="#50b1df" colorTo="#50b1df" target="{gradientAfter}" />
+			</s:Parallel>
+		</s:Transition>
+		<s:Transition fromState="active" toState="up">
+			<s:Parallel>
+				<s:AnimateColor colorFrom="#9ee2ff" colorTo="#66a8ca"  target="{gradientBefore}" />
+				<s:AnimateColor colorFrom="#71cff9" colorTo="#267eae" target="{gradientMiddle}" />
+				<s:AnimateColor colorFrom="#50b1df" colorTo="#1a79af" target="{gradientAfter}" />
+			</s:Parallel>
+		</s:Transition>
+		<s:Transition fromState="active" toState="over">
+			<s:Parallel>
+				<s:AnimateColor colorFrom="#9ee2ff" colorTo="#9ee2ff"  target="{gradientBefore}" />
+				<s:AnimateColor colorFrom="#71cff9" colorTo="#71cff9" target="{gradientMiddle}" />
+				<s:AnimateColor colorFrom="#50b1df" colorTo="#50b1df" target="{gradientAfter}" />
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+	
+	<!-- SkinParts
+	name=labelDisplay, type=spark.components.supportClasses.TextBase, required=false
+	-->
+	
+	<s:Rect width="100%" height="100%" radiusX="2" alpha="0.8">
+		<s:fill>
+			<s:SolidColor color="#0a1013" />
+		</s:fill>
+	</s:Rect>
+	<s:Rect width="100%" height="100%" radiusX="2" left="1" right="1" top="1" bottom="1" alpha="0.8">
+		<s:fill>
+			<s:SolidColor color="#ffffff" />
+		</s:fill>
+	</s:Rect>
+	
+	<s:Rect width="100%" height="100%" left="2" right="2" top="2" bottom="2" alpha="0.8">
+		<s:fill>  
+			<s:LinearGradient rotation="60" rotation.active="90">  
+				<s:entries>  
+					<s:GradientEntry id="gradientBefore"
+									 color.up="#66a8ca"
+									 color.over="#9ee2ff"
+									 color.down="#b3d9ed"
+									 color.active="#9ee2ff" ratio.active="0"
+									 color.flashes="#efe669"/>  
+					<s:GradientEntry id="gradientMiddle"
+									 color.up="#267eae"
+									 color.over="#71cff9"
+									 color.down="#85caec"
+									 color.active="#71cff9" ratio.active="0.54"
+									 color.flashes="#d5ad43"/>
+					<s:GradientEntry id="gradientAfter"
+									 color.up="#1a79af"
+									 color.over="#50b1df"
+									 color.down="#ccf0ff"
+									 color.active="#50b1df" ratio.active="1"
+									 color.flashes="#cd7834"/>
+				</s:entries>  
+			</s:LinearGradient>  
+		</s:fill> 
+	</s:Rect>
+	<s:HGroup left="8" right="8" gap="5" verticalCenter="0">
+		<s:Image id="iconImage" width="30" height="30" />
+		<s:Label id="labelDisplay"
+				 width="100%" height="100%"
+				 maxDisplayedLines="1"
+				 verticalAlign="middle"
+				 fontFamily="宋体" color="#ffffff">
+		</s:Label>
+	</s:HGroup>
+	
+	<s:PopUpAnchor id="popupAnchor" popUpPosition="below" bottom="40" left="-57">
+		
+		<s:BorderContainer backgroundAlpha="0" borderVisible="false" width="234" height="140">
+			<s:Rect left="0" right="0" bottom="0" top="0" radiusX="5">
+				<s:stroke>
+					<s:SolidColorStroke color="#000000" alpha="0.40" weight="1" caps="square" />
+				</s:stroke>
+				<s:fill>
+					<s:SolidColor color="#ffffff" alpha="0.3"/>
+				</s:fill>
+			</s:Rect>
+			
+			<s:Rect width="214" height="120" radiusX="2" verticalCenter="0" horizontalCenter="0">
+				<s:stroke>
+					<s:SolidColorStroke color="#293133" alpha="0.8" weight="1" caps="square" />
+				</s:stroke>
+				<s:fill>
+					<s:BitmapFill id="previewImage" alpha="0.8" fillMode="scale" smooth="true"/>
+				</s:fill>
+			</s:Rect>
+		</s:BorderContainer>
+		                
+	</s:PopUpAnchor>
+</s:Skin>

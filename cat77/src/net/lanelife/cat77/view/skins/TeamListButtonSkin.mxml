@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("net.lanelife.cat77.view.components.TeamListButton")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="down" />
+		<s:State name="over" />
+		<s:State name="up" />
+	</s:states>
+	
+	<s:transitions>
+		<s:Transition fromState="over" toState="down">
+			<s:AnimateColor colorFrom="#c0e1f8" colorTo="#fceaa2" target="{background}"/>
+		</s:Transition>
+		<s:Transition fromState="down" toState="over">
+			<s:AnimateColor colorFrom="#fceaa2" colorTo="#c0e1f8" target="{background}"/>
+		</s:Transition>
+	</s:transitions>
+	
+	
+	<s:Rect left="5" right="5" top="0" bottom="0" radiusX="2" alpha.up="0">
+		<s:fill>
+			<s:SolidColor id="background" color.over="#c0e1f8" color.down="#fceaa2" />
+		</s:fill>
+	</s:Rect>
+	
+	<s:Image width="30" height="30" left="10" verticalCenter="0"
+			 source="{hostComponent.team.icon}"
+			 smooth="true"/>
+	
+	<s:Label text="{hostComponent.team.name}"
+			 verticalAlign="middle"
+			 maxDisplayedLines="1"
+			 top="5" left="45"/>
+	
+	<s:Label text="{hostComponent.team.summary}"
+			 verticalAlign="middle"
+			 maxDisplayedLines="1"
+			 top="20" left="45" right="10" color="#808080"/>
+	
+</s:Skin>

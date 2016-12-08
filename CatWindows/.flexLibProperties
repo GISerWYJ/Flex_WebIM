@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<flexLibProperties includeAllClasses="true" useMultiPlatformConfig="false" version="3">
+  <includeClasses>
+    <classEntry path="net.lanelife.framework.serialization.json.JSONTokenizer"/>
+    <classEntry path="net.lanelife.framework.serialization.json.JSONToken"/>
+    <classEntry path="net.lanelife.framework.serialization.json.JSONParseError"/>
+    <classEntry path="net.lanelife.framework.serialization.json.JSONTokenType"/>
+  </includeClasses>
+  <includeResources>
+    <resourceEntry destPath="defaults.css" sourcePath="defaults.css"/>
+  </includeResources>
+  <namespaceManifests/>
+</flexLibProperties>

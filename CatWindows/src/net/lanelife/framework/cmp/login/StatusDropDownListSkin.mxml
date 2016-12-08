@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("spark.components.DropDownList")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="open" />
+		<s:State name="disabled" />
+		<s:State name="normal" />
+	</s:states>
+	
+	<!-- SkinParts
+	name=scroller, type=spark.components.Scroller, required=false
+	name=dropDown, type=flash.display.DisplayObject, required=false
+	name=labelDisplay, type=spark.core.IDisplayText, required=false
+	name=openButton, type=spark.components.supportClasses.ButtonBase, required=true
+	name=dropIndicator, type=mx.core.IFactory, required=false
+	name=dataGroup, type=spark.components.DataGroup, required=false
+	-->
+	
+	<s:PopUpAnchor id="popUp"  displayPopUp.normal="false" displayPopUp.open="true" includeIn="open"
+				   left="0" right="0" top="0" bottom="0" itemDestructionPolicy="auto"
+				   popUpPosition="below">
+		<s:Group id="dropDown" maxHeight="134" minHeight="22" width="107" >
+			<s:RectangularDropShadow id="dropShadow" blurX="10" blurY="10" alpha="0.45" distance="2" 
+									 angle="90" color="#666666" left="0" top="1" right="0" bottom="0"/>
+			<s:Rect id="border" left="0" right="0" top="1" bottom="0" radiusX="1">
+				<s:stroke>
+					<s:SolidColorStroke id="borderStroke" weight="1" color="#666666"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Rect id="background" left="1" right="1" top="2" bottom="1" radiusX="1" >
+				<s:fill>
+					<s:SolidColor id="bgFill" color="0xfffefc" />
+				</s:fill>
+			</s:Rect>
+			<s:Rect left="2" top="3" bottom="2" width="25" topLeftRadiusX="1" bottomLeftRadiusX="1" >
+				<s:fill>
+					<s:SolidColor color="#e9eeef" />
+				</s:fill>
+			</s:Rect>
+			<s:Scroller id="scroller" left="0" top="1" right="0" bottom="0" hasFocusableChildren="false" minViewportInset="1">
+				<s:DataGroup id="dataGroup" itemRenderer="net.lanelife.framework.cmp.login.StatusDropDownListItemRenderer">
+					<s:layout>
+						<s:VerticalLayout gap="0" horizontalAlign="contentJustify"/>
+					</s:layout>
+				</s:DataGroup> 
+			</s:Scroller>
+		</s:Group>
+	</s:PopUpAnchor>
+	
+	<s:Label id="labelDisplay" visible="false" /> 
+	
+	<s:Button id="openButton"  left="0" right="0" top="0" bottom="0" focusEnabled="false"
+			  skinClass="net.lanelife.framework.cmp.login.StatusDropDownListButtonSkin" />
+	
+	<s:Image source="{hostComponent.selectedItem.icon}" left="6" width="11" height="11" verticalCenter="0"
+			 mouseEnabled="false" mouseChildren="false"/>
+	
+</s:Skin>

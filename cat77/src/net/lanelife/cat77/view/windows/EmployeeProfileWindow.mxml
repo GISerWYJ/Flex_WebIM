@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cw:DesktopWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				  xmlns:s="library://ns.adobe.com/flex/spark" 
+				  xmlns:mx="library://ns.adobe.com/flex/mx" 
+				  xmlns:cw="net.lanelife.framework.cw.*" 
+				  xmlns:components="net.lanelife.cat77.view.components.*"
+				  title="{employee.username}的资料"
+				  icon="images/logo_30x30.png"
+				  width="585" height="425" x="280" y="30"
+				  maximizable="false" resizable="false">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.DateField;
+			
+			import net.lanelife.cat77.EventType;
+			import net.lanelife.framework.event.XEvent;
+			import net.lanelife.framework.event.XEventDispatcher;
+			import net.lanelife.cat77.WebIMAppContext;
+			import net.lanelife.cat77.service.EmployeeService;
+			import net.lanelife.cat77.vo.Employee;
+			import net.lanelife.framework.cw.Prompt;
+			
+			[Bindable]
+			public var employee:Employee;
+			
+			private function update():void
+			{
+				this.disabled = true;
+				
+				EmployeeService.find(employee.id).addResultListener(function result(data:*):void {
+					var model:WebIMAppContext = WebIMAppContext.getInstance();
+					var employee:Employee = data.result as Employee;
+					if (employee!=null) {
+						var emp:Employee = model.getEmployee(employee.id);
+						emp.username = employee.username;
+						emp.face = employee.face;
+						emp.photo = employee.photo;
+						emp.sign = employee.sign;
+						emp.sex = employee.sex;
+						emp.birthday = employee.birthday;
+						emp.age = employee.age;
+						emp.zodiac = employee.zodiac;
+						emp.constellation = employee.constellation;
+						emp.bloodtype = employee.bloodtype;
+						emp.job = employee.job;
+						emp.mobile = employee.mobile;
+						emp.telephone = employee.telephone;
+						emp.email = employee.email;
+						emp.qq = employee.qq;
+						emp.graduateschool = employee.graduateschool;
+						emp.professional = employee.professional;
+						emp.birthplace = employee.birthplace;
+						emp.confessions = employee.confessions;
+						emp.department = employee.department;
+						
+						employee_findSuccessfulHandler();
+					}
+				}).addFaultListener(function fault(info:*):void {
+					employee_findFaultHandler();
+				});
+			}
+			
+			private function employee_findSuccessfulHandler():void
+			{
+				this.disabled = false;
+			}
+			
+			private function employee_findFaultHandler():void
+			{
+				Prompt.show(this,"更新资料失败!","错误提示",Prompt.OK,null,"images/plaint.png");
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:Group left="15" top="20" width="104" height="104">
+		<s:Rect left="0" top="0" right="0" bottom="0" radiusX="2">
+			<s:fill>
+				<s:LinearGradient rotation="90">  
+					<s:entries>  
+						<s:GradientEntry color="#dde8ee" />  
+						<s:GradientEntry color="#8ab0df" />
+					</s:entries>  
+				</s:LinearGradient>  
+			</s:fill>
+		</s:Rect>
+		<s:Rect left="1" top="1" right="1" bottom="1" radiusX="2">
+			<s:fill>
+				<s:SolidColor color="#ffffff"/>
+			</s:fill>
+		</s:Rect>
+		<s:Image left="2" top="2" right="2" bottom="2" smooth="true" source="{employee.face}" />
+	</s:Group>
+	
+	<s:ButtonBar dataProvider="{viewStack}" 
+				 requireSelection="true"
+				 width="122" left="8" top="142" 
+				 skinClass="net.lanelife.cat77.view.skins.VerticalButtonBarSkin"/>
+	
+	<mx:ViewStack id="viewStack" left="145" top="0" right="0" bottom="30" creationPolicy="all">
+		<s:NavigatorContent label="基本资料" icon="@Embed('assets/icons/100.png')">
+			<s:Scroller left="0" right="0" top="0" bottom="0">
+				<s:Group>
+					
+					<s:RichEditableText id="username" y="25" width="200" height="24" editable="false"
+										fontWeight="bold" text="{employee.username}"/>
+					
+					<s:Label y="47" text="个性签名:"/>
+					<s:RichEditableText id="sign" x="60" y="48" width="348" height="40" editable="false" text="{employee.sign}"/>
+					
+					<s:Label y="102" fontWeight="bold" text="基本资料"/>
+					
+					<s:Label y="125" text="性别:"/>
+					<s:RichEditableText id="sex" x="36" y="125" width="131" height="22" editable="false" text="{employee.sex}" lineBreak="explicit"/>
+					
+					<s:Label x="227" y="125" text="生日:"/>
+					<s:RichEditableText id="birthday" x="263" y="125" width="131" height="22" editable="false" text="{DateField.dateToString(employee.birthday,'YYYY年MM月DD日')}" lineBreak="explicit"/>
+					
+					<s:Label y="148" text="年龄:"/>
+					<s:RichEditableText id="age" x="36" y="148" width="131" height="22" editable="false" text="{employee.age}" lineBreak="explicit"/>
+					
+					<s:Label x="227" y="148" text="生肖:"/>
+					<s:RichEditableText id="zodiac" x="263" y="148" width="131" height="22" editable="false" text="{employee.zodiac}" lineBreak="explicit"/>
+					
+					<s:Label y="171" text="星座:"/>
+					<s:RichEditableText id="constellation" x="36" y="171" width="131" height="22" editable="false" text="{employee.constellation}" lineBreak="explicit"/>
+					
+					<s:Label x="228" y="171" text="血型:"/>
+					<s:RichEditableText id="bloodtype" x="263" y="171" width="131" height="22" editable="false" text="{employee.bloodtype}" lineBreak="explicit"/>
+					
+					<s:Label y="200" fontWeight="bold" text="更多资料"/>
+					
+					<s:Label y="223" text="部    门:"/>
+					<s:RichEditableText id="department" x="60" y="223" width="131" height="22" editable="false" text="{employee.department.name}" lineBreak="explicit"/>
+					
+					<s:Label x="228" y="223" text="职  务:"/>
+					<s:RichEditableText id="job" x="276" y="223" width="131" height="22" editable="false" text="{employee.job}" lineBreak="explicit"/>
+					
+					<s:Label y="246" text="手    机:"/>
+					<s:RichEditableText id="mobile" x="60" y="246" width="131" height="22" editable="false" text="{employee.mobile}" lineBreak="explicit"/>
+					
+					<s:Label x="228" y="246" text="电  话:"/>
+					<s:RichEditableText id="telephone" x="276" y="246" width="131" height="22" editable="false" text="{employee.telephone}" lineBreak="explicit"/>
+					
+					<s:Label y="269" text="邮    箱:"/>
+					<s:RichEditableText id="email" x="60" y="269" width="131" height="22" editable="false" text="{employee.email}" lineBreak="explicit"/>
+					
+					<s:Label x="228" y="269" text="QQ号码:"/>
+					<s:RichEditableText id="qq" x="276" y="269" width="131" height="22" editable="false" text="{employee.qq}" lineBreak="explicit"/>
+					
+					<s:Label y="292" text="毕业院校:"/>
+					<s:RichEditableText id="graduateschool" x="60" y="292" width="348" height="22" editable="false" text="{employee.graduateschool}" lineBreak="explicit"/>
+					
+					<s:Label y="315" text="专    业:"/>
+					<s:RichEditableText id="professional" x="60" y="315" width="348" height="22" editable="false" text="{employee.professional}" lineBreak="explicit"/>
+					
+					<s:Label y="338" text="籍    贯:"/>
+					<s:RichEditableText id="birthplace" x="60" y="338" width="348" height="22" editable="false" text="{employee.birthplace}" lineBreak="explicit"/>
+					
+					<s:Label y="361" text="个人说明:"/>
+					<s:RichEditableText id="confessions" x="60" y="361" width="348" height="40" editable="false" text="{employee.confessions}"/>
+					
+				</s:Group>
+			</s:Scroller>
+		</s:NavigatorContent>
+		<s:NavigatorContent label="形象照片" icon="@Embed('assets/icons/100.png')">
+			
+			<s:Group left="10" top="20" width="140" height="190">
+				<s:Rect left="0" top="0" right="0" bottom="0" radiusX="2">
+					<s:stroke>
+						<s:SolidColorStroke color="#cde1eb" weight="1" caps="square"/>
+					</s:stroke>
+					<s:fill>
+						<s:SolidColor color="#ffffff"/>
+					</s:fill>
+				</s:Rect>
+				<s:Group left="2" right="2" top="2" bottom="2" clipAndEnableScrolling="true">
+					<mx:Image id="photo" source="{employee.photo}"
+							  width="136" height="186"
+							  maintainAspectRatio="false" smoothBitmapContent="true"/>
+				</s:Group>
+			</s:Group>
+			
+		</s:NavigatorContent>
+	</mx:ViewStack>
+
+	
+	<s:Button label="更新" 
+			  right="85" bottom="3" 
+			  click="update()"/>
+	
+	<s:Button label="关闭" click="close()"
+			  right="10" bottom="3"/>
+	
+</cw:DesktopWindow>

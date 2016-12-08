@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<login:LoginWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   width="400" height="300"
+			   creationComplete="loginInit()" 
+			   xmlns:login="net.lanelife.framework.cmp.login.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.logging.LogEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import net.lanelife.cat77.WebIMAppContext;
+			import net.lanelife.cat77.service.EmployeeService;
+			import net.lanelife.cat77.vo.Employee;
+			import net.lanelife.framework.cmp.login.LoginEvent;
+			
+			[Bindable]
+			public var appContext:WebIMAppContext;
+			
+			private function loginInit():void {
+				
+				addEventListener(LoginEvent.LOGIN, function(event:LoginEvent):void{
+					
+					var employee:Employee = new Employee();
+					employee.id = parseInt(event.account);
+					employee.password = event.password;
+					
+					EmployeeService.login(employee).addResultListener(employee_loginSuccessHandler).addFaultListener(loginFaultHandler);
+				});
+			}
+			
+			private function employee_loginSuccessHandler(event:ResultEvent):void{
+				
+				var employee:Employee = event.result as Employee;
+				if (employee != null) {
+					appContext.employee = employee;
+					appContext.employee.status = status.selectedItem.status;
+					
+					var loginSuccessEvent:LoginEvent = new LoginEvent(LoginEvent.LOGIN_SUCCESS);
+					loginSuccessEvent.account = employee.id + "";
+					loginSuccessEvent.userName = employee.username;
+					loginSuccessEvent.face = employee.face;
+					dispatchEvent(loginSuccessEvent);
+					
+					appContext.connectServer(socket_errorHandler);
+				} else {
+					dispatchEvent(new LoginEvent(LoginEvent.LOGIN_FAULT));
+				}
+			}
+			
+			private function socket_errorHandler(event:Event):void
+			{
+				dispatchEvent(new LoginEvent(LoginEvent.CONNECT_SERVER_FAULT));
+			}
+		]]>
+	</fx:Script>
+</login:LoginWindow>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("spark.components.VScrollBar")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="inactive" />
+		<s:State name="disabled" />
+		<s:State name="normal" />
+	</s:states>
+	
+	<s:Rect top="0" bottom="0" left="0" right="0" minWidth="14" minHeight="14" radiusX="1">
+		<s:stroke>
+			<s:SolidColorStroke color="#e2eef3" weight="1"/>
+		</s:stroke>
+		<s:fill>
+			<s:SolidColor color="#ebf3f6" />
+		</s:fill>
+	</s:Rect>
+	
+	<s:Button id="track" top="19" bottom="19" height="54"
+			  focusEnabled="false"
+			  skinClass="net.lanelife.framework.skin.qq.scrollbar.VScrollBarTrackSkin" />
+	
+	<s:Button id="thumb" 
+			  focusEnabled="false" visible.inactive="false"
+			  skinClass="net.lanelife.framework.skin.qq.scrollbar.VScrollBarThumbSkin" />
+	
+	<s:Button id="decrementButton" top="0" enabled.inactive="false"
+			  focusEnabled="false" 
+			  skinClass="net.lanelife.framework.skin.qq.scrollbar.ScrollBarUpButtonSkin" />
+	
+	<s:Button id="incrementButton" bottom="0" enabled.inactive="false"
+			  focusEnabled="false" 
+			  skinClass="net.lanelife.framework.skin.qq.scrollbar.ScrollBarDownButtonSkin" />
+	
+	<!-- SkinParts
+	name=incrementButton, type=spark.components.Button, required=false
+	name=track, type=spark.components.Button, required=false
+	name=thumb, type=spark.components.Button, required=false
+	name=decrementButton, type=spark.components.Button, required=false
+	-->
+</s:Skin>

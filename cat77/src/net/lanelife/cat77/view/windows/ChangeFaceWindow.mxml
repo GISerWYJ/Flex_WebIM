@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cw:DesktopWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				  xmlns:s="library://ns.adobe.com/flex/spark" 
+				  xmlns:mx="library://ns.adobe.com/flex/mx" 
+				  xmlns:cw="net.lanelife.framework.cw.*"
+				  title="更换头像"
+				  icon="images/logo_30x30.png"
+				  width="570" height="425" x="320" y="60"
+				  maximizable="false" resizable="false" xmlns:components="net.lanelife.cat77.view.components.*" xmlns:component="net.lanelife.framework.component.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.graphics.codec.JPEGEncoder;
+			
+			import net.lanelife.cat77.EventType;
+			import net.lanelife.framework.event.XEvent;
+			import net.lanelife.framework.event.XEventDispatcher;
+			import net.lanelife.cat77.WebIMAppContext;
+			import net.lanelife.cat77.service.EmployeeService;
+			import net.lanelife.framework.cw.Prompt;
+			
+			import spark.events.IndexChangeEvent;
+			
+			[Bindable]
+			private var model:WebIMAppContext = WebIMAppContext.getInstance();
+			
+			private var file:FileReference;
+			private var camera:Camera;
+			private var video:Video;
+			
+			private function browseLocalPicture():void
+			{
+				file = new FileReference();
+				file.addEventListener(Event.SELECT, file_selectHandler);
+				file.addEventListener(Event.COMPLETE, file_completeHandler);
+				file.browse(new Array(new FileFilter("图像文件 (*.jpg,*.gif,*.png)", "*.jpg; *.gif; *.png")));
+			}
+			
+			private function file_selectHandler(event:Event):void
+			{
+				file.load();
+			}
+			
+			private function file_completeHandler(event:Event):void
+			{
+				this.currentState = "cut";
+				if (file.data.length>0)
+				{
+					picture.source = file.data;
+				}
+				else
+				{
+					Prompt.show(this,"图片加载错误!","错误提示",Prompt.OK,null,"images/plaint.png");
+					this.currentState = "normal";
+				}
+			}
+			
+			protected function picture_completeHandler(event:Event):void
+			{
+				cutPictureBox.x = 0;
+				cutPictureBox.y = 0;
+			}
+			
+			protected function picture_ioErrorHandler(event:IOErrorEvent):void
+			{
+				Prompt.show(this,"图片加载错误!","错误提示",Prompt.OK,null,"images/plaint.png");
+				this.currentState = "normal";
+			}
+			
+			private function cutPicture():void
+			{
+				var bx:Number = cutPictureBox.x;
+				var by:Number = cutPictureBox.y;
+				var bw:Number = cutPictureBox.width;
+				var bh:Number = cutPictureBox.height;
+				var pictureBD:BitmapData = new BitmapData(picture.width, picture.height);
+				pictureBD.draw(picture);
+				var pixels:ByteArray = pictureBD.getPixels(new Rectangle(bx, by, bw, bh)); 
+				pixels.position=0;
+				var cutBD:BitmapData = new BitmapData(bw, bh);
+				cutBD.setPixels(new Rectangle(0, 0, bw, bh), pixels);
+				var sb:Bitmap = new Bitmap(cutBD);
+				sb.smoothing = true;
+				sb.pixelSnapping = PixelSnapping.ALWAYS;
+				smallFacePreview.source = sb;
+				var bb:Bitmap = new Bitmap(cutBD);
+				bb.smoothing = true;
+				bb.pixelSnapping = PixelSnapping.ALWAYS;
+				bigFacePreview.source = bb;
+			}
+			
+			private function initCamera():void
+			{
+				this.currentState = "camera";
+				camera  = Camera.getCamera();
+				if (camera != null)
+				{
+					camera.addEventListener(StatusEvent.STATUS, camera_statusHandler);
+					camera.setMode(videoDisplay.width, videoDisplay.height, 15);
+					camera.setKeyFrameInterval(60);
+					camera.setQuality(144, 100);
+					video = new Video(videoDisplay.width, videoDisplay.height);
+					video.attachCamera(camera);
+					videoDisplay.addChild(video);
+				}
+				else
+				{
+					this.currentState = "normal";
+					Prompt.show(this,"无法找到摄像头!","错误提示",Prompt.OK,null,"images/plaint.png");
+				}
+			}
+			
+			private function camera_statusHandler(event:StatusEvent):void
+			{
+				if (camera.muted)
+				{
+					this.currentState = "normal";
+					Prompt.show(this,"无法连接到活动摄像头！!","错误提示",Prompt.OK,null,"images/plaint.png");
+				}
+			}
+			
+			private function closeCamera():void
+			{
+				this.camera = Camera.getCamera(null); 
+				this.camera = null; 
+				if (this.video!=null)
+					this.video.attachCamera(null);
+			}
+			
+			protected function takePictureButton_clickHandler(event:MouseEvent):void
+			{
+				closeCamera();
+				var bitmapData:BitmapData = new BitmapData(videoDisplay.width, videoDisplay.height);
+				bitmapData.draw(videoDisplay);
+				this.currentState = "cut";
+				picture.source = new Bitmap(bitmapData);
+				cutPictureBox.x = 0;
+				cutPictureBox.y = 0;
+			}
+			
+			protected function closeCameraButton_clickHandler(event:MouseEvent):void
+			{
+				closeCamera();
+				this.currentState = "normal";
+			}
+			
+			protected function faceList_changeHandler(event:IndexChangeEvent):void
+			{
+				smallFacePreview.source = "images/face/"+faceList.selectedItem+".gif";
+				bigFacePreview.source = "images/face/"+faceList.selectedItem+".gif";
+			}
+			
+			private function save():void
+			{
+				var face:String = null;
+				var picture:ByteArray = null;
+				if (bigFacePreview.source is Bitmap)
+				{
+					var bitmapData:BitmapData = new BitmapData(bigFacePreview.width, bigFacePreview.height); 
+					bitmapData.draw(bigFacePreview); 
+					picture = new JPEGEncoder(100).encode(bitmapData);
+				} else {
+					face = String(bigFacePreview.source);
+				}
+				
+				EmployeeService.updateFace(model.employee, face, picture).addResultListener(function result(data:*):void {
+					var model:WebIMAppContext = WebIMAppContext.getInstance();
+					var face:String = data.result;
+					if (face != null) {
+						model.employee.face = face;
+						
+						employee_updateFaceSuccessfulHandler();
+						
+						var accountSharedObject:SharedObject = SharedObject.getLocal("accounts");
+						var accounts:ArrayCollection = accountSharedObject.data.accounts as ArrayCollection;
+						for(var i:Number=0; i<accounts.length; i++)
+						{
+							if (accounts[i].userid==model.employee.id)
+							{
+								accounts[i].face = face;
+							}
+						}
+					} else {
+						employee_updateFaceUnsuccessfulHandler();
+					}
+				}).addFaultListener(function fault(info:*):void {
+					employee_updateFaceFaultHandler();
+				});
+				
+				disabled = true;
+			}
+			
+			private function employee_updateFaceSuccessfulHandler():void
+			{
+				disabled = false;
+				close();
+			}
+			private function employee_updateFaceUnsuccessfulHandler():void
+			{
+				Prompt.show(this,"头像更换失败,请稍后重试!","错误提示",Prompt.OK,null,"images/plaint.png");
+			}
+			private function employee_updateFaceFaultHandler():void
+			{
+				Prompt.show(this,"头像更换失败,请稍后重试!","错误提示",Prompt.OK,null,"images/plaint.png");
+			}
+			
+			override public function close():void
+			{
+				closeCamera();
+				super.close();
+			}
+		]]>
+	</fx:Script>
+	
+	<cw:states>
+		<s:State name="normal" />
+		<s:State name="camera" />
+		<s:State name="cut" />
+	</cw:states>
+	
+	<s:Group width="126" right="0" top="10">
+		<s:Label text="头像预览:" left="10"/>
+		<s:Rect width="43" height="43" top="25" horizontalCenter="0" radiusX="3">
+			<s:stroke>
+				<s:SolidColorStroke color="#8ab0df" weight="1" caps="square"/>
+			</s:stroke>
+			<s:fill>
+				<s:SolidColor color="#ffffff"/>
+			</s:fill>
+		</s:Rect>
+		<s:Image id="smallFacePreview"
+				 width="40" height="40" top="27" horizontalCenter="0" 
+				 smooth="true" source="{model.employee.face}" />
+		<s:Label top="72" horizontalCenter="0" text="40×40"/>
+		
+		<s:Rect width="103" height="103" top="95" horizontalCenter="0" radiusX="3">
+			<s:stroke>
+				<s:SolidColorStroke color="#8ab0df" weight="1" caps="square"/>
+			</s:stroke>
+			<s:fill>
+				<s:SolidColor color="#ffffff"/>
+			</s:fill>
+		</s:Rect>
+		<s:Image id="bigFacePreview"
+				 width="100" height="100" top="97" horizontalCenter="0" 
+				 smooth="true" source="{model.employee.face}" />
+		<s:Label top="202" horizontalCenter="0" text="100×100"/>
+		
+		<s:ButtonBar dataProvider="{viewStack}" 
+					 requireSelection="true" 
+					 width="110" top="230" horizontalCenter="0"
+					 skinClass="net.lanelife.cat77.view.skins.VerticalButtonBarSkin"/>
+	</s:Group>
+	
+	<s:Group width="430" height="355" left="3" top="2">
+		<s:Rect left="0" top="0" right="0" bottom="0" radiusX="3">
+			<s:stroke>
+				<s:SolidColorStroke color="#8ab0df" weight="1" caps="square"/>
+			</s:stroke>
+			<s:fill>
+				<s:SolidColor color="#f6f9fd"/>
+			</s:fill>
+		</s:Rect>
+		<mx:ViewStack id="viewStack" creationPolicy="all">
+			<s:NavigatorContent label="系统头像" icon="@Embed('assets/icons/100.png')">
+				<s:List id="faceList" 
+						left="5" top="5" width="420" height="345" 
+						borderVisible="false" selectionColor="#34beff" rollOverColor="#97dbfb"
+						itemRenderer="net.lanelife.cat77.view.renderer.FaceItemRenderer"
+						change="faceList_changeHandler(event)">
+					<s:layout>
+						<s:TileLayout verticalGap="5" horizontalGap="5"/>
+					</s:layout>
+					<s:dataProvider>
+						<s:ArrayList source="[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]"/>
+					</s:dataProvider>
+				</s:List>
+			</s:NavigatorContent>
+			<s:NavigatorContent label="自定义头像" icon="@Embed('assets/icons/100.png')">
+				<s:Button label="本地照片" left="10" top="10" click="browseLocalPicture()" enabled.camera="false"/>
+				<s:Button label="自拍头像" left="90" top="10" click="initCamera()" enabled.camera="false"/>
+				
+				<s:Group width="410" height="280" left="10" top="40">
+					<s:Image id="picture"
+							 width="100%" height="100%"
+							 smooth="true"
+							 includeIn="cut"
+							 complete="picture_completeHandler(event)"
+							 ioError="picture_ioErrorHandler(event)"/>
+					<component:CutPictureBox id="cutPictureBox"
+											  cutObject="{picture}"
+											  width="200" height="200"
+											  includeIn="cut"
+											  cut="cutPicture()"/>
+					<s:VideoDisplay id="videoDisplay" 
+									width="410" height="280"
+									includeIn="camera"/>
+				</s:Group>
+				
+				<s:HGroup bottom="3" horizontalCenter="0" includeIn="camera">
+					<s:Button id="takePictureButton" label="拍照" click="takePictureButton_clickHandler(event)" />
+					<s:Button id="closeCameraButton" label="取消" click="closeCameraButton_clickHandler(event)" />
+				</s:HGroup>
+			</s:NavigatorContent>
+		</mx:ViewStack>
+	</s:Group>
+	
+	<s:Button label="确定" right="85" bottom="3" click="save()"/>
+	<s:Button label="取消" right="10" bottom="3" click="close()"/>
+	
+</cw:DesktopWindow>

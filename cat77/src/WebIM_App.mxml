@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  implements="net.lanelife.framework.app.IApp"
+		  width="100%" height="100%">
+	
+	<fx:Script>
+		<![CDATA[
+			import net.lanelife.cat77.WebIM;
+			
+			private var adjuster:String;   
+			
+			public static const APP_NAME:String = "WebIM";
+			
+			public function getAuthor():String {   
+				return "lanelife";
+			}
+			
+			public function getAppName():String {   
+				return APP_NAME;   
+			}
+			
+			public function start():void {
+				
+				var webim:WebIM = new WebIM;
+			}
+			
+		]]>
+	</fx:Script>
+	
+</s:Module>

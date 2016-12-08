@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cw:DesktopWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				  xmlns:s="library://ns.adobe.com/flex/spark" 
+				  xmlns:mx="library://ns.adobe.com/flex/mx" 
+				  xmlns:cw="net.lanelife.framework.cw.*"
+				  icon="images/logo_30x30.png"
+				  width="510" height="360" x="280" y="30"
+				  maximizable="false" resizable="false"
+				  creationComplete="init()">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import net.lanelife.cat77.EventType;
+			import net.lanelife.framework.event.XEvent;
+			import net.lanelife.framework.event.XEventDispatcher;
+			import net.lanelife.cat77.WebIMAppContext;
+			import net.lanelife.cat77.service.TeamService;
+			import net.lanelife.cat77.vo.Employee;
+			import net.lanelife.cat77.vo.Team;
+			import net.lanelife.cat77.vo.TeamEmployee;
+			import net.lanelife.framework.cw.Prompt;
+			
+			[Bindable]
+			private var model:WebIMAppContext = WebIMAppContext.getInstance();
+			
+			[Bindable]
+			private var candidateTeamEmployees:ArrayCollection = new ArrayCollection(); //候选
+			[Bindable]
+			private var selectedTeamEmployees:ArrayCollection = new ArrayCollection(); //已选
+			
+			[Bindable]
+			private var team:Team = new Team();
+			
+			public var editTeam:Team;
+			
+			[Bindable]
+			private var teamManager:Employee = new Employee();
+			
+			
+			protected function init():void
+			{
+				if (editTeam==null)
+				{ //如果是新增群则设置管理员为当前用户
+					this.title = "新建群";
+					teamManager = model.employee;
+				}
+				else
+				{
+					team.id = editTeam.id;
+					team.name = editTeam.name;
+					team.icon = editTeam.icon;
+					team.placard = editTeam.placard;
+					team.summary = editTeam.summary;
+					team.teamEmployees = editTeam.teamEmployees;
+					
+					this.title = "群设置 - " + team.name;
+					
+					//如果是修改群则取出管理员
+					for (var i:Number=0; i<team.teamEmployees.length; i++)
+					{
+						if (team.teamEmployees[i].ismanager)
+						{
+							teamManager = team.teamEmployees[i].employee;
+						}
+					}
+					selectedTeamEmployees = new ArrayCollection(team.teamEmployees.toArray());
+					selectedTeamEmployees.filterFunction = function(item:TeamEmployee):Boolean
+					{ //过滤掉管理员
+						if (item.employee.id!=teamManager.id)
+							return true;
+						else
+							return false;
+					};
+					selectedTeamEmployees.refresh();
+				}
+				//设置候选人员
+				for (var j:Number=0; j<model.departmentList.length; j++)
+				{
+					for (var k:Number=0; k<model.departmentList[j].employees.length; k++)
+					{
+						if (model.getTeamEmployeeByEmployeeId(selectedTeamEmployees, model.departmentList[j].employees[k].id)==null && 
+							teamManager.id != model.departmentList[j].employees[k].id)
+						{
+							var teamEmployee:TeamEmployee = new TeamEmployee();
+							teamEmployee.team = team;
+							teamEmployee.employee = model.departmentList[j].employees[k];
+							candidateTeamEmployees.addItem(teamEmployee);
+						}
+					}
+				}
+				//employeeService.findAll();
+			}
+			
+			/* protected function employeeService_resultHandler(event:ResultEvent):void
+			{
+			var employees:ArrayCollection = event.result as ArrayCollection;
+			for (var i:Number=0; i<employees.length; i++)
+			{
+			if (findTeamEmployee(selectedTeamEmployees, employees[i].id)==null && teamManager.id!=employees[i].id)
+			{ //如果该人员不在已选择人员列表中 并且不是管理员，则添加到候选列表
+			var teamEmployee:TeamEmployee = new TeamEmployee();
+			teamEmployee.team = team;
+			teamEmployee.employee = employees[i];
+			candidateTeamEmployees.addItem(teamEmployee);
+			}
+			}
+			}
+			
+			protected function employeeService_faultHandler(event:FaultEvent):void
+			{
+			Prompt.show(this,"获取人员列表失败,请稍候重试!","错误提示",Prompt.OK,null,"images/plaint.png");
+			} */
+			
+			
+			private function moveToSelected():void
+			{
+				if (candidateList.selectedIndex>-1)
+				{
+					selectedTeamEmployees.addItem(candidateList.selectedItem);
+					candidateTeamEmployees.removeItemAt(candidateList.selectedIndex);
+				}
+			}
+			
+			private function moveToCandidate():void
+			{
+				if (selectedList.selectedIndex>-1)
+				{
+					candidateTeamEmployees.addItem(selectedList.selectedItem);
+					selectedTeamEmployees.removeItemAt(selectedList.selectedIndex);
+				}
+			}
+			
+			private function save():void
+			{
+				if (teamname.text=="")
+				{
+					Prompt.show(this,"请输入群名称!","提示",Prompt.OK,null,"images/plaint.png");
+				}
+				else
+				{
+					team.name = teamname.text;
+					team.icon = teamicon.source.toString();
+					team.placard = placard.text;
+					team.summary = summary.text;
+					
+					var deletedTeamEmployees:ArrayCollection = new ArrayCollection(); //要删除的
+					var selectedTeamEmployees:ArrayCollection = new ArrayCollection(); //要保存的
+					for (var i:Number=0; i<candidateTeamEmployees.length; i++)
+					{
+						if (candidateTeamEmployees[i].id>0)
+						{
+							deletedTeamEmployees.addItem(candidateTeamEmployees[i]);
+						}
+					}
+					for (var j:Number=0; j<this.selectedTeamEmployees.length; j++)
+					{
+						selectedTeamEmployees.addItem(this.selectedTeamEmployees[j]);
+					}
+					
+					if (editTeam==null)
+					{
+						//添加该群管理员(创建人)
+						var manager:TeamEmployee = new TeamEmployee();
+						manager.team = team;
+						manager.employee = teamManager;
+						manager.ismanager = true;
+						selectedTeamEmployees.addItem(manager);
+					}
+					else
+					{
+						for (var k:Number=0; k<team.teamEmployees.length; k++)
+						{
+							if (team.teamEmployees[k].ismanager)
+							{
+								selectedTeamEmployees.addItem(team.teamEmployees[k]);
+							}
+						}
+					}
+					
+					TeamService.save(team, selectedTeamEmployees, deletedTeamEmployees).addResultListener(function result(data:Object):void{
+						team_SaveSuccessfulHandler();
+					}).addFaultListener(function fault(info:Object):void {
+						team_SaveFaultHandler();
+					})
+					
+					disabled = true;
+				}
+			}
+			
+			private function team_SaveSuccessfulHandler():void
+			{
+				var info:String = (editTeam!=null)?"修改群成功!":"创建群成功!";
+				Prompt.show(this,info,"恭喜你",Prompt.OK,function():void{close()},"images/plaint.png");
+			}
+			
+			private function team_SaveFaultHandler():void
+			{
+				var info:String = (editTeam!=null)?"修改群失败!":"创建群失败!";
+				Prompt.show(this,info,"错误提示",Prompt.OK,null,"images/plaint.png");
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<!--<s:RemoteObject id="employeeService"
+		destination="employeeService"
+		showBusyCursor="true" 
+		result="employeeService_resultHandler(event)"
+		fault="employeeService_faultHandler(event)"/>-->
+	</fx:Declarations>
+	
+	<s:Group left="29" top="20" width="44" height="44">
+		<s:Rect left="0" top="0" right="0" bottom="0" radiusX="2">
+			<s:fill>
+				<s:LinearGradient rotation="90">  
+					<s:entries>  
+						<s:GradientEntry color="#dde8ee" />  
+						<s:GradientEntry color="#8ab0df" />
+					</s:entries>  
+				</s:LinearGradient>  
+			</s:fill>
+		</s:Rect>
+		<s:Rect left="1" top="1" right="1" bottom="1" radiusX="2">
+			<s:fill>
+				<s:SolidColor color="#ffffff"/>
+			</s:fill>
+		</s:Rect>
+		<s:Image id="teamicon" left="2" top="2" right="2" bottom="2" smooth="true" source="images/teamicons/1.png"/>
+	</s:Group>
+	
+	<s:ButtonBar dataProvider="{viewStack}" 
+				 requireSelection="true"
+				 width="80" left="12" top="80" 
+				 skinClass="net.lanelife.cat77.view.skins.VerticalButtonBarSkin"/>
+	
+	<mx:ViewStack id="viewStack" left="115" top="15" creationPolicy="all">
+		<s:NavigatorContent label="群资料" icon="@Embed('assets/icons/100.png')">
+			<s:Group left="0" top="0" width="369" height="270">
+				<s:Label text="名称:"/>
+				<s:TextInput id="teamname"
+							 text="{team.name}"
+							 top="15" width="175" height="24"/>
+				
+				<s:Label text="创建人:" left="194"/>
+				<s:TextInput text="{teamManager.username}" 
+							 editable="false"
+							 left="194" top="15" width="175" height="24"/>
+				
+				<s:Label text="群公告:" top="47"/>
+				<s:TextArea id="placard" 
+							text="{team.placard}"
+							left="0" right="0" top="62" height="90"/>
+				
+				<s:Label text="群简介:" top="160"/>
+				<s:TextArea id="summary" 
+							text="{team.summary}"
+							left="0" right="0" top="175" height="90"/>
+			</s:Group>
+		</s:NavigatorContent>
+		<s:NavigatorContent label="群成员" icon="@Embed('assets/icons/100.png')">
+			<s:Group left="0" top="0" width="130" height="270">
+				<s:Label text="选择人员:" top="5" />
+				<s:Scroller left="0" top="25" right="0" bottom="0">
+					<s:Group left="0" top="0" right="0" bottom="0">
+						<s:List id="candidateList" dataProvider="{candidateTeamEmployees}"
+								left="0" top="0" right="0" bottom="0"
+								borderColor="#85b7d0" rollOverColor="#e9f6fb" selectionColor="#358ccc"
+								doubleClick="moveToSelected()" doubleClickEnabled="true">
+							<s:itemRenderer>
+								<fx:Component>
+									<s:ItemRenderer height="24">
+										<s:Image source="{data.employee.face}" 
+												 smooth="true" left="5" width="18" height="18" verticalCenter="0"/>
+										<s:Label text="{data.employee.username}" 
+												 left="27" top="0" bottom="0" verticalAlign="middle"/>
+									</s:ItemRenderer>
+								</fx:Component>
+							</s:itemRenderer>
+						</s:List>
+					</s:Group>
+				</s:Scroller>
+			</s:Group>
+			
+			<s:Group left="150" top="70" width="89" height="150">
+				<s:Button label="添加 &gt;&gt;" width="69" top="0" 
+						  enabled="{candidateList.selectedIndex>-1}"
+						  click="moveToSelected()" />
+				<s:Button label="&lt;&lt; 删除" width="69" bottom="0" 
+						  enabled="{selectedList.selectedIndex>-1}"
+						  click="moveToCandidate()" />
+			</s:Group>
+			
+			<s:Group left="239" top="0" width="130" height="270">
+				<s:Label text="已选人员:" top="5" />
+				<s:Scroller left="0" top="25" right="0" bottom="0">
+					<s:Group left="0" top="0" right="0" bottom="0">
+						<s:List id="selectedList" dataProvider="{selectedTeamEmployees}"
+								left="0" top="0" right="0" bottom="0"
+								borderColor="#85b7d0" rollOverColor="#e9f6fb" selectionColor="#358ccc"
+								doubleClick="moveToCandidate()" doubleClickEnabled="true">
+							<s:itemRenderer>
+								<fx:Component>
+									<s:ItemRenderer height="24">
+										<s:Image source="{data.employee.face}" 
+												 smooth="true" left="5" width="18" height="18" verticalCenter="0"/>
+										<s:Label text="{data.employee.username}" 
+												 left="27" top="0" bottom="0" verticalAlign="middle"/>
+									</s:ItemRenderer>
+								</fx:Component>
+							</s:itemRenderer>
+						</s:List>
+					</s:Group>
+				</s:Scroller>
+			</s:Group>
+		</s:NavigatorContent>
+	</mx:ViewStack>
+	
+	<s:Button id="saveButton" 
+			  label="确定" 
+			  right="85" bottom="3" 
+			  click="save()"/>
+	
+	<s:Button id="cancelButton" 
+			  label="取消" 
+			  right="10" bottom="3" 
+			  click="close()"/>
+</cw:DesktopWindow>

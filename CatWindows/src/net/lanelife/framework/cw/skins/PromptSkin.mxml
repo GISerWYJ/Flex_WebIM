@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("net.lanelife.framework.cw.Prompt")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import net.lanelife.framework.cw.Window;
+		]]>
+	</fx:Script>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="normal" />
+	</s:states>
+	<!--背景-->
+	<s:Rect top="0" bottom="0" left="0" right="0" radiusX="4">
+		<s:fill>
+			<s:SolidColor color="{hostComponent.chromeColor||Window.CHROME_COLOR}"/>
+		</s:fill>
+	</s:Rect>
+	<s:Rect top="0" bottom="0" left="0" right="0" radiusX="4">
+		<s:fill>  
+			<s:BitmapFill source="{hostComponent.backgroundBitmap||Window.BACKGROUND_BITMAP}" fillMode="scale" /> 
+		</s:fill>
+	</s:Rect>
+	<!--高亮边框-->
+	<s:Rect top="0" bottom="0" left="0" right="0" radiusX="4">
+		<s:stroke>
+			<s:SolidColorStroke color="#000000" alpha="0.40" weight="1" caps="square" />
+		</s:stroke>
+	</s:Rect>
+	
+	
+	<!--顶部背景-->
+	<s:Rect height="16" left="2" top="2" right="2">
+		<s:fill>  
+			<s:LinearGradient rotation="90">  
+				<s:entries>  
+					<s:GradientEntry color="#ffffff" alpha="0.3" />  
+					<s:GradientEntry color="#ffffff" alpha="0.1" />
+				</s:entries>  
+			</s:LinearGradient>  
+		</s:fill>
+	</s:Rect>
+	<s:Rect height="13" left="2" top="18" right="2" alpha="0.04">
+		<s:fill>
+			<s:SolidColor color="#ffffff"/>
+		</s:fill>
+	</s:Rect>
+	<s:Line top="31" left="1" right="1">
+		<s:stroke>
+			<s:SolidColorStroke color="#ffffff" alpha="0.80" weight="1" caps="square" />
+		</s:stroke>
+	</s:Line>
+	
+	
+	<!--内容背景-->
+	<s:Rect top="32" left="1" right="1" bottom="33">
+		<s:fill>  
+			<s:LinearGradient rotation="90">  
+				<s:entries>  
+					<s:GradientEntry color="#ffffff" alpha="0.68" ratio="0" />  
+					<s:GradientEntry color="#fafbf8" alpha="0.95" ratio="0.19" />
+					<s:GradientEntry color="#fbfcf9" alpha="0.89" ratio="1" />
+				</s:entries>  
+			</s:LinearGradient>  
+		</s:fill>
+	</s:Rect>
+	
+	<!--按钮区域背景-->
+	<s:Rect height="32" left="1" right="1" bottom="1" bottomLeftRadiusX="4" bottomRightRadiusX="4">
+		<s:fill>  
+			<s:LinearGradient rotation="90">  
+				<s:entries>  
+					<s:GradientEntry color="#ffffff" alpha="0.8" ratio="0" />  
+					<s:GradientEntry color="#ffffff" alpha="0.6" ratio="1" />
+				</s:entries>  
+			</s:LinearGradient>  
+		</s:fill>
+	</s:Rect>
+	
+	<!--高亮边框-->
+	<s:Rect top="1" bottom="1" left="1" right="1" radiusX="4">
+		<s:stroke>
+			<s:SolidColorStroke color="#ffffff" alpha="0.40" weight="1" caps="square" />
+		</s:stroke>
+	</s:Rect>
+	
+	
+	<s:HGroup left="8" top="6" right="50" height="25">
+		<s:Image id="iconDisplay" width="20" height="20" />
+		<s:Label id="titleDisplay" 
+				 verticalAlign="middle" fontSize="12" height="20"
+				 fontWeight="bold" trackingLeft="1" trackingRight="1">
+			<s:filters>
+				<s:GlowFilter color="#ffffff" blurX="2" blurY="2" strength="3" alpha="0.3"/>
+			</s:filters>
+		</s:Label>
+	</s:HGroup>
+	
+	<s:HGroup width="100%" height="30" top="1" gap="0">
+		<s:Group id="moveArea" width="100%" height="100%" />
+		<s:Button id="minimizeButton" width="26" height="16" skinClass="net.lanelife.framework.cw.skins.MinimizeButtonSkin" />
+		<s:Button id="maximizeButton" width="26" height="16" skinClass="net.lanelife.framework.cw.skins.MaximizeButtonSkin" />
+		<s:Button id="restoreButton" width="26" height="16" skinClass="net.lanelife.framework.cw.skins.RestoreButtonSkin" />
+		<s:Button id="closeButton" width="37" height="16" skinClass="net.lanelife.framework.cw.skins.CloseButtonSkin" />
+	</s:HGroup>
+	
+	<!-- 也许提示框不需要标题菜单
+	<s:Group id="titleBarMenuTrigger" left="5" top="5" height="23" width="21" />
+	-->
+	
+	<s:HGroup id="contentGroup" top="50" left="25" right="25" bottom="50" gap="10">
+		<s:Image id="promptIconDisplay" width="38" height="38" smooth="true" 
+				 visible="{(hostComponent.iconObject)?true:false}"
+				 includeInLayout="{(hostComponent.iconObject)?true:false}"/>
+		<s:Label id="textDisplay" height="100%" verticalAlign="middle" />
+	</s:HGroup>
+	
+	<s:HGroup id="buttonsGroup" left="9" right="9" bottom="6" gap="6" />
+	
+	
+	<s:BorderContainer id="maskLayer" left="0" right="0" top="0" bottom="0" alpha="0.1" backgroundColor="#000000" />
+	
+</s:Skin>

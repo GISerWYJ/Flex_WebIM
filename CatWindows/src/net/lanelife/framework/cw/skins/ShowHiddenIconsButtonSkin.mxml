@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("spark.components.ToggleButton")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="disabledAndSelected" />
+		<s:State name="downAndSelected" />
+		<s:State name="overAndSelected" />
+		<s:State name="upAndSelected" />
+		<s:State name="disabled" />
+		<s:State name="down" />
+		<s:State name="over" />
+		<s:State name="up" />
+	</s:states>
+	
+	<s:Rect top="0" bottom="0" left="0" right="0" radiusX="2" alpha.up="0">
+		<s:stroke>
+			<s:SolidColorStroke color="#000000" alpha="0.5" weight="1" caps="square" />
+		</s:stroke>
+		<s:fill>
+			<s:SolidColor color="#ffffff" alpha="0.53" />
+		</s:fill>
+	</s:Rect>
+	
+	<s:Rect top="2" bottom="2" left="2" right="2" radiusX="2" alpha.up="0">
+		<s:fill>
+			<s:SolidColor color="#1c4c82" />
+		</s:fill>
+	</s:Rect>
+	
+	<s:Rect height="9" left="2" top="1" right="1" topLeftRadiusX="2" topRightRadiusX="2" alpha.up="0">
+		<s:fill>  
+			<s:LinearGradient rotation="90">  
+				<s:entries>  
+					<s:GradientEntry color="#ffffff" alpha.over="0.7" alpha="0.8" />  
+					<s:GradientEntry color="#ffffff" alpha.over="0.3" alpha="0.5" />
+				</s:entries>  
+			</s:LinearGradient>  
+		</s:fill>
+	</s:Rect>
+	
+	<s:Rect height="9" bottom="1" left="1" right="1" bottomLeftRadiusX="2" bottomRightRadiusX="2" alpha.up="0">
+		<s:fill>
+			<s:SolidColor color="#ffffff" alpha.over="0.08" alpha="0.35"/>
+		</s:fill>
+	</s:Rect>
+	
+	<s:Path data="M3.5 0 0 4 7 3.5Z" width="8" height="5" verticalCenter="0" horizontalCenter="0">
+		<s:stroke>
+			<s:SolidColorStroke color="#000000" alpha.up="0.5" alpha="0.3" weight="1" caps="square" />
+		</s:stroke>
+		<s:fill>
+			<s:SolidColor color="#ffffff" />
+		</s:fill>
+	</s:Path>
+	
+	
+	<!-- SkinParts
+	name=iconDisplay, type=spark.primitives.BitmapImage, required=false
+	name=labelDisplay, type=spark.core.IDisplayText, required=false
+	-->
+</s:Skin>

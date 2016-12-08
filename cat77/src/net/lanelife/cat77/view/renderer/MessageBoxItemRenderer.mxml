@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				xmlns:components="net.lanelife.cat77.view.components.*"
+				autoDrawBackground="false" width="100%" xmlns:desktop="net.lanelife.framework.desktop.*" >
+	
+	<fx:Script>
+		<![CDATA[
+			import net.lanelife.cat77.WebIMAppContext;
+			import net.lanelife.framework.desktop.MessageBoxItem;
+			import net.lanelife.cat77.vo.Employee;
+			import net.lanelife.cat77.vo.Team;
+			import net.lanelife.framework.cw.WindowManager;
+			
+			
+			protected function showMessage():void
+			{
+				var messageItem:MessageBoxItem = data as MessageBoxItem;
+				
+				if (data.type==MessageBoxItem.TYPE_EMPLOYEE_MESSAGE)
+				{
+					messageItem.appContext.openChatWindow(data.messages[0].sender as Employee);
+				}
+				else if (data.type==MessageBoxItem.TYPE_TEAM_MESSAGE)
+				{
+					messageItem.appContext.openTeamChatWindow(data.messages[0].team as Team)
+				}
+				else if (data.type==MessageBoxItem.TYPE_SYSTEM_MESSAGE)
+				{
+					messageItem.appContext.openSystemMessageWindow(data.messages[0]);
+				}
+				
+				WindowManager.get("messageBox" + messageItem.appContext.employee.id).visible = false;
+			}
+		]]>
+	</fx:Script>
+	
+	
+	<desktop:MessageBoxItemButton messageBoxItem="{data}" width="100%" height="24"
+									 click="showMessage()"
+									 skinClass="net.lanelife.cat77.view.skins.MessageBoxItemButtonSkin"/>
+	
+</s:ItemRenderer>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	
+	<fx:Script>
+		<![CDATA[
+			[Bindable]
+			public var image:Object;
+			[Bindable]
+			public var imageWidth:Number = 136;
+			[Bindable]
+			public var imageHeight:Number = 186;
+		]]>
+	</fx:Script>
+	
+	<s:Rect left="0" top="0" right="0" bottom="0" radiusX="2">
+		<s:stroke>
+			<s:SolidColorStroke color="#cde1eb" weight="1" caps="square"/>
+		</s:stroke>
+		<s:fill>
+			<s:SolidColor color="#ffffff"/>
+		</s:fill>
+	</s:Rect>
+	<s:Group left="2" right="2" top="2" bottom="2" clipAndEnableScrolling="true">
+		<mx:Image source="{image}"
+				  width="{imageWidth}" height="{imageHeight}"
+				  maintainAspectRatio="false" smoothBitmapContent="true"/>
+	</s:Group>
+	
+	
+</s:Group>

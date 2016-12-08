@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<desktop:WebOS xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" 
+			   xmlns:desktop="net.lanelife.framework.desktop.*"
+			   width="100%" height="100%"
+			   creationComplete="init()" >
+	
+	<fx:Style source="default.css"/>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.graphics.BitmapFillMode;
+			
+			import net.lanelife.framework.app.AppManager;
+			import net.lanelife.framework.component.SkinManager;
+			
+			private function init():void
+			{
+				SkinManager.changeDesktopBackground("assets/main_bg.png", BitmapFillMode.REPEAT);
+				
+				//SkinManager.changeSkin("assets/panel_bg.png", BitmapFillMode.REPEAT);
+				
+				AppManager.installApp("WebIM_App");
+				
+				AppManager.installApp("Music_App");
+				
+				AppManager.installApp("Movie_App");
+			}
+			
+		]]>
+	</fx:Script>
+
+</desktop:WebOS>

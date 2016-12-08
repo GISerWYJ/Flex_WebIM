@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				autoDrawBackground="false" height="25">
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="selectedAndShowsCaret" stateGroups="selectedAndShowsCaretStates" />
+		<s:State name="hoveredAndShowsCaret" stateGroups="selectedAndShowsCaretStates" />
+		<s:State name="normalAndShowsCaret" stateGroups="selectedAndShowsCaretStates" />
+		<s:State name="selected" />
+		<s:State name="hovered" />
+	</s:states>
+	
+	<s:Rect left="1" right="1" top="1" bottom="1" radiusX="1" 
+			visible="false">  
+		<s:fill>  
+			<s:LinearGradient rotation="90">  
+				<s:entries>  
+					<s:GradientEntry color="#3f98d8" />  
+					<s:GradientEntry color="#3188c7" />
+				</s:entries>  
+			</s:LinearGradient>  
+		</s:fill>  
+	</s:Rect>
+	
+	<s:Rect left="1" right="1" top="1" bottom="1" radiusX="1"
+			visible="false" visible.hovered="true">  
+		<s:fill>  
+			<s:LinearGradient rotation="90">  
+				<s:entries>  
+					<s:GradientEntry color="#8bcdee" />  
+					<s:GradientEntry color="#7dc4e8" />
+				</s:entries>  
+			</s:LinearGradient>  
+		</s:fill>  
+	</s:Rect>
+	
+	
+	<s:Image source="{data.icon}" left="7" verticalCenter="0" width="11" height="11" />
+	<s:Label left="35" right="5" top="1" bottom="1" text="{data.text}" verticalAlign="middle"/>
+	
+</s:ItemRenderer>

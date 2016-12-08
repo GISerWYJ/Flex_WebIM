@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cw:DesktopWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				  xmlns:s="library://ns.adobe.com/flex/spark" 
+				  xmlns:mx="library://ns.adobe.com/flex/mx" 
+				  xmlns:cw="net.lanelife.framework.cw.*" 
+				  xmlns:components="net.lanelife.cat77.view.components.*"
+				  title="我的资料"
+				  icon="images/logo_30x30.png"
+				  width="585" height="425" x="280" y="30"
+				  maximizable="false" resizable="false"
+				  creationComplete="creationCompleteHandler()" >
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.DateField;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.PropertyChangeEvent;
+			import mx.graphics.codec.JPEGEncoder;
+			import mx.utils.ObjectProxy;
+			
+			import net.lanelife.cat77.EventType;
+			import net.lanelife.framework.event.XEvent;
+			import net.lanelife.framework.event.XEventDispatcher;
+			import net.lanelife.cat77.WebIMAppContext;
+			import net.lanelife.cat77.service.EmployeeService;
+			import net.lanelife.cat77.vo.Employee;
+			import net.lanelife.framework.cw.Prompt;
+			import net.lanelife.framework.cw.WindowManager;
+			
+			import spark.events.IndexChangeEvent;
+			
+			[Bindable]
+			public var appContext:WebIMAppContext;
+			
+			[Bindable]
+			private var employee:ObjectProxy;
+			
+			[Bindable]
+			private var birthdayYears:ArrayList = new ArrayList();
+			[Bindable]
+			private var birthdayMonths:ArrayList = new ArrayList();
+			[Bindable]
+			private var birthdayDays:ArrayList = new ArrayList();
+			
+			[Bindable]
+			private var propertyChanged:Boolean = false;
+			
+			private var saveAndCloseWindow:Boolean = true;
+			
+			public function contentCreationCompleteHandler():void
+			{
+				employee = new ObjectProxy();
+				employee.id = appContext.employee.id;
+				employee.username = appContext.employee.username;
+				employee.face = appContext.employee.face;
+				employee.photo = appContext.employee.photo;
+				employee.sign = appContext.employee.sign;
+				employee.sex = appContext.employee.sex;
+				employee.birthday = appContext.employee.birthday;
+				employee.age = appContext.employee.age;
+				employee.zodiac = appContext.employee.zodiac;
+				employee.constellation = appContext.employee.constellation;
+				employee.bloodtype = appContext.employee.bloodtype;
+				employee.job = appContext.employee.job;
+				employee.mobile = appContext.employee.mobile;
+				employee.telephone = appContext.employee.telephone;
+				employee.email = appContext.employee.email;
+				employee.qq = appContext.employee.qq;
+				employee.graduateschool = appContext.employee.graduateschool;
+				employee.professional = appContext.employee.professional;
+				employee.birthplace = appContext.employee.birthplace;
+				employee.confessions = appContext.employee.confessions;
+				employee.department = appContext.employee.department;
+				
+				for(var iY:Number=2011; iY>=1892; iY--)
+				{
+					birthdayYears.addItem(iY+"年");
+				}
+				for(var iM:Number=1; iM<=12; iM++)
+				{
+					birthdayMonths.addItem(iM+"月");
+				}
+				for(var iD:Number=1; iD<=new Date(employee.birthday.getFullYear(),employee.birthday.getMonth()+1,0).getDate(); iD++)
+				{
+					birthdayDays.addItem(iD+"日");
+				}
+			}
+			
+			private function creationCompleteHandler():void
+			{
+				employee.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, propertyChangeHandler);
+			}
+			
+			private function propertyChangeHandler(event:PropertyChangeEvent):void
+			{
+				propertyChanged = true;
+			}
+			
+			override public function close():void
+			{
+				if (propertyChanged)
+				{
+					Prompt.show(this,"您已经对设置作了修改,是否保存?","保存资料",Prompt.YES|Prompt.NO,promptCloseHandler,"images/plaint.png");
+				}
+				else
+				{
+					super.close();
+				}
+			}
+			
+			private function promptCloseHandler(event:CloseEvent):void {  
+				if (event.detail==Prompt.YES)
+					save(true);
+				else
+					super.close();
+			} 
+			
+			private function save(flag:Boolean):void
+			{
+				saveAndCloseWindow = flag;
+				
+				var employee:Employee = new Employee();
+				employee.id = this.employee.id;
+				employee.username = this.employee.username;
+				employee.sign = this.employee.sign;
+				employee.sex = this.employee.sex;
+				employee.birthday = this.employee.birthday;
+				employee.age = this.employee.age;
+				employee.zodiac = this.employee.zodiac;
+				employee.constellation = this.employee.constellation;
+				employee.bloodtype = this.employee.bloodtype;
+				employee.job = this.employee.job;
+				employee.mobile = this.employee.mobile;
+				employee.telephone = this.employee.telephone;
+				employee.email = this.employee.email;
+				employee.qq = this.employee.qq;
+				employee.graduateschool = this.employee.graduateschool;
+				employee.professional = this.employee.professional;
+				employee.birthplace = this.employee.birthplace;
+				employee.confessions = this.employee.confessions;
+				
+				disabled = true;
+				
+				EmployeeService.update(WebIMAppContext.getInstance().employee, employee).addResultListener(function result(data:*):void {
+					var model:WebIMAppContext = WebIMAppContext.getInstance();
+					var employee:Employee = data.result as Employee;
+					if (employee != null) {
+						model.employee = employee;
+						employee_saveSuccessfulHandler();
+					} else {
+						employee_saveUnsuccessfulHandler();
+					}
+				}).addFaultListener(function fault(info:*):void {
+					employee_saveFaultHandler();
+				});
+			}
+			
+			private function employee_saveSuccessfulHandler():void
+			{
+				disabled = false;
+				propertyChanged = false;
+				if (saveAndCloseWindow)
+				{
+					close();
+				}
+			}
+			private function employee_saveUnsuccessfulHandler():void
+			{
+				Prompt.show(this,"保存失败,请稍后重试!","错误提示",Prompt.OK,null,"images/plaint.png");
+			}
+			private function employee_saveFaultHandler():void
+			{
+				Prompt.show(this,"保存失败,请稍后重试!","错误提示",Prompt.OK,null,"images/plaint.png");
+			}
+			
+			private function changeBirthday(event:IndexChangeEvent):void
+			{
+				var date:Date = DateField.stringToDate(
+					birthdayYear.selectedItem+birthdayMonth.selectedItem+birthdayDay.selectedItem,'YYYY年MM月DD日'
+				);
+				employee.birthday = date;
+			}
+			
+			private function getDays():void
+			{
+				var oldDays:Number = birthdayDays.length;
+				var newDays:Number = new Date(parseInt(birthdayYear.selectedItem),parseInt(birthdayMonth.selectedItem),0).getDate();
+				
+				if (newDays<oldDays)
+				{
+					if (birthdayDay.selectedIndex>=newDays)
+					{
+						birthdayDay.selectedIndex = 0;
+					}
+					for (var i:Number=newDays; i<oldDays; i++)
+					{
+						birthdayDays.removeItemAt(newDays);
+					}
+				}
+				if (newDays>oldDays)
+				{
+					for (var j:Number=oldDays+1; j<=newDays; j++)
+					{
+						birthdayDays.addItem(j+"日");
+					}
+				}
+			}
+			
+			private function showChangeFaceWindow():void
+			{
+				var changeFaceWindow:ChangeFaceWindow = WindowManager.get("changeFaceWindow") as ChangeFaceWindow;
+				if (changeFaceWindow==null)
+				{
+					changeFaceWindow = new ChangeFaceWindow();
+					changeFaceWindow.id = "changeFaceWindow";
+					changeFaceWindow.ownerWindow = WindowManager.get("mainWindow");
+				}
+				changeFaceWindow.show();
+			}
+			
+			
+			private var file:FileReference;
+			
+			private function browseLocalPicture():void
+			{
+				file = new FileReference();
+				file.addEventListener(Event.SELECT, file_selectHandler);
+				file.addEventListener(Event.COMPLETE, file_completeHandler);
+				file.browse(new Array(new FileFilter("图像文件 (*.jpg,*.gif,*.png)", "*.jpg; *.gif; *.png")));
+			}
+			
+			private function file_selectHandler(event:Event):void
+			{
+				file.load();
+			}
+			
+			private function file_completeHandler(event:Event):void
+			{
+				if (file.data.length>0)
+				{
+					photo.source = file.data;
+					uploadButton.enabled = true;
+				}
+				else
+				{
+					Prompt.show(this,"图片加载错误!","错误提示",Prompt.OK,null,"images/plaint.png");
+				}
+			}
+			
+			private function upload():void
+			{
+				var picture:ByteArray = null;
+				var bitmapData:BitmapData = new BitmapData(photo.width, photo.height); 
+				bitmapData.draw(photo); 
+				picture = new JPEGEncoder(100).encode(bitmapData);
+				
+				disabled = true;
+				
+				EmployeeService.updatePhoto(appContext.employee, picture).addResultListener(function result(data:*):void {
+					var model:WebIMAppContext = WebIMAppContext.getInstance();
+					var photo:String = data.result;
+					if (photo != null) {
+						model.employee.photo = photo;
+						employee_updatePhotoSuccessfulHandler();
+					} else {
+						employee_updatePhotoFaultHandler();
+					}
+				}).addFaultListener(function fault(info:*):void {
+					employee_updatePhotoFaultHandler();
+				})
+			}
+			
+			private function employee_updatePhotoSuccessfulHandler():void
+			{
+				uploadButton.enabled = false;
+				photo.source = appContext.employee.photo;
+				Prompt.show(this,"形象照片上传成功!","恭喜您",Prompt.OK,null,"images/plaint.png");
+			}
+			
+			private function employee_updatePhotoFaultHandler():void
+			{
+				Prompt.show(this,"形象照片上传失败,请稍候重试!","错误提示",Prompt.OK,null,"images/plaint.png");
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:Group left="15" top="20" width="104" height="104" 
+			 useHandCursor="true" buttonMode="true" click="showChangeFaceWindow()">
+		<s:Rect left="0" top="0" right="0" bottom="0" radiusX="2">
+			<s:fill>
+				<s:LinearGradient rotation="90">  
+					<s:entries>  
+						<s:GradientEntry color="#dde8ee" />  
+						<s:GradientEntry color="#8ab0df" />
+					</s:entries>  
+				</s:LinearGradient>  
+			</s:fill>
+		</s:Rect>
+		<s:Rect left="1" top="1" right="1" bottom="1" radiusX="2">
+			<s:fill>
+				<s:SolidColor color="#ffffff"/>
+			</s:fill>
+		</s:Rect>
+		<s:Image id="face" left="2" top="2" right="2" bottom="2" smooth="true" 
+				 source="{appContext.employee.face}" toolTip="更换头像" />
+	</s:Group>
+	
+	<s:ButtonBar dataProvider="{viewStack}" 
+				 requireSelection="true"
+				 width="122" left="8" top="142" 
+				 skinClass="net.lanelife.cat77.view.skins.VerticalButtonBarSkin"/>
+	
+	<mx:ViewStack id="viewStack" left="145" top="15" creationPolicy="all">
+		<s:NavigatorContent label="基本资料" icon="@Embed('assets/icons/100.png')">
+			
+			<s:Label text="姓名:"/>
+			<s:TextInput id="username" 
+						 text="@{employee.username}"
+						 top="15" width="200" height="24"/>
+			
+			<s:Label text="数字帐号:" left="220"/>
+			<s:TextInput text="{employee.id}" 
+						 editable="false"
+						 left="220" top="15" width="200" height="24"/>
+			
+			<s:Label text="个性签名:" top="47"/>
+			<s:TextArea id="sign" 
+						text="@{employee.sign}"
+						top="62" width="420" height="40"/>
+			
+			<s:Label text="性别:" top="140"/>
+			<s:DropDownList id="sex" 
+							selectedItem="@{employee.sex}" 
+							top="155" width="200" height="24">
+				<s:dataProvider>
+					<s:ArrayList source="[男,女]" /> 
+				</s:dataProvider>
+			</s:DropDownList>
+			
+			<s:Label text="生日:" left="220" top="140"/>
+			<s:DropDownList id="birthdayYear" 
+							dataProvider="{birthdayYears}"
+							selectedItem="{employee.birthday.getFullYear()}年" 
+							change="getDays();changeBirthday(event)"
+							left="220" top="155" width="74" height="24">
+			</s:DropDownList>
+			<s:DropDownList id="birthdayMonth" 
+							dataProvider="{birthdayMonths}"
+							selectedItem="{employee.birthday.getMonth()+1}月" 
+							change="getDays();changeBirthday(event)"
+							left="302" top="155" width="55" height="24">
+			</s:DropDownList>
+			<s:DropDownList id="birthdayDay" 
+							dataProvider="{birthdayDays}"
+							selectedItem="{employee.birthday.getDate()}日" 
+							change="changeBirthday(event)"
+							left="365" top="155" width="55" height="24">
+			</s:DropDownList>
+			
+			<s:Label text="年龄:" top="187"/>
+			<s:DropDownList id="age" 
+							selectedItem="@{employee.age}" 
+							top="202" width="200" height="24">
+				<s:dataProvider>
+					<s:ArrayList source="[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150]"/>
+				</s:dataProvider>
+			</s:DropDownList>
+			
+			<s:Label text="生肖:" left="220" top="187"/>
+			<s:DropDownList id="zodiac" 
+							selectedItem="@{employee.zodiac}"
+							left="220" top="202" width="200" height="24">
+				<s:dataProvider>
+					<s:ArrayList source="[,鼠,牛,虎,兔,龙,蛇,马,羊,猴,鸡,狗,猪]" /> 
+				</s:dataProvider>
+			</s:DropDownList>
+			
+			<s:Label text="星座:" top="234"/>
+			<s:DropDownList id="constellation" 
+							selectedItem="@{employee.constellation}" 
+							top="249" width="200" height="24">
+				<s:dataProvider>
+					<s:ArrayList source="[,白羊座,金牛座,双子座,巨蟹座,狮子座,处女座,天秤座,天蝎座,射手座,摩羯座,水瓶座,双鱼座]" /> 
+				</s:dataProvider>
+			</s:DropDownList>
+			
+			<s:Label text="血型:" left="220" top="234"/>
+			<s:DropDownList id="bloodtype"
+							selectedItem="@{employee.bloodtype}"
+							left="220" top="249" width="200" height="24">
+				<s:dataProvider>
+					<s:ArrayList source="[,A型,B型,O型,AB型,其它]" /> 
+				</s:dataProvider>
+			</s:DropDownList>
+			
+		</s:NavigatorContent>
+		<s:NavigatorContent label="更多资料" icon="@Embed('assets/icons/100.png')">
+			
+			<s:Label text="部门:"/>
+			<s:TextInput id="department" 
+						 text="{employee.department.name}"
+						 top="15" width="200" height="24"
+						 editable="false"/>
+			
+			<s:Label text="职务:" left="220"/>
+			<s:TextInput id="job"
+						 text="@{employee.job}"
+						 left="220" top="15" width="200" height="24"/>
+			
+			<s:Label text="手机:" top="47"/>
+			<s:TextInput id="mobile"
+						 text="@{employee.mobile}"
+						 top="62" width="200" height="24"/>
+			
+			<s:Label text="电话:" left="220" top="47"/>
+			<s:TextInput id="telephone"
+						 text="@{employee.telephone}"
+						 left="220" top="62" width="200" height="24"/>
+			
+			<s:Label text="邮箱:" top="94"/>
+			<s:TextInput id="email"
+						 text="@{employee.email}"
+						 top="109" width="200" height="24"/>
+			
+			<s:Label text="QQ号码:" left="220" top="94"/>
+			<s:TextInput id="qq"
+						 text="@{employee.qq}" restrict="0-9"
+						 left="220" top="109" width="200" height="24"/>
+			
+			<s:Label text="毕业院校:" top="141"/>
+			<s:TextInput id="graduateschool"
+						 text="@{employee.graduateschool}"
+						 top="156" width="200" height="24"/>
+			
+			<s:Label text="专业:" top="141" left="220"/>
+			<s:TextInput id="professional"
+						 text="@{employee.professional}"
+						 left="220" top="156" width="200" height="24"/>
+			
+			<s:Label text="籍贯:" top="188"/>
+			<s:TextInput id="birthplace"
+						 text="@{employee.birthplace}"
+						 top="203" width="420" height="24"/>
+			
+			<s:Label text="个人说明:" top="235"/>
+			<s:TextArea id="confessions"
+						text="@{employee.confessions}"
+						top="250" width="420" height="50"/>
+			
+		</s:NavigatorContent>
+		<s:NavigatorContent label="形象照片" icon="@Embed('assets/icons/100.png')">
+			
+			<s:Group left="10" top="20" width="140" height="190">
+				<s:Rect left="0" top="0" right="0" bottom="0" radiusX="2">
+					<s:stroke>
+						<s:SolidColorStroke color="#cde1eb" weight="1" caps="square"/>
+					</s:stroke>
+					<s:fill>
+						<s:SolidColor color="#ffffff"/>
+					</s:fill>
+				</s:Rect>
+				<s:Group left="2" right="2" top="2" bottom="2" clipAndEnableScrolling="true">
+					<mx:Image id="photo" source="{employee.photo}"
+							  width="136" height="186"
+							  maintainAspectRatio="false" smoothBitmapContent="true"/>
+				</s:Group>
+			</s:Group>
+			
+			<s:Button top="30" left="200" width="100" label="选择本地照片" click="browseLocalPicture()"/>
+			
+			<s:Button id="uploadButton" top="60" left="200" width="100" label="开始上传" enabled="false" click="upload()" />
+			
+		</s:NavigatorContent>
+	</mx:ViewStack>
+	
+	<s:Button id="saveButton"
+			  label="确定" 
+			  right="160" bottom="3"
+			  click="save(true)"/>
+	
+	<s:Button id="cancelButton" 
+			  label="取消" 
+			  right="85" bottom="3" 
+			  click="close()"/>
+	
+	<s:Button id="applyButton" 
+			  label="应用" 
+			  right="10" bottom="3" 
+			  enabled="{propertyChanged}"
+			  click="save(false)"/>
+	
+</cw:DesktopWindow>

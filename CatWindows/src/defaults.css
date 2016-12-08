@@ -1,0 +1,37 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace cw "net.lanelife.framework.cw.*";
+
+s|Label {
+	font-family:'宋体';
+}
+
+.bglist s|Scroller s|HScrollBar {
+	skin-class:ClassReference("net.lanelife.framework.desktop.setting.HScrollBarSkin");
+}
+
+mx|Menu {
+	rollOverColor:#8bcdee;
+	selectionColor:#b3e5f8;
+}
+
+cw|Window {
+	skin-class:ClassReference("net.lanelife.framework.cw.skins.WindowSkin");
+}
+
+cw|TaskbarButton {
+	skin-class:ClassReference("net.lanelife.framework.cw.skins.TaskbarButtonSkin");
+}
+
+cw|TrayIcon {
+	skin-class:ClassReference("net.lanelife.framework.cw.skins.TrayIconSkin");
+}
+
+cw|StartButton {
+	skin-class:ClassReference("net.lanelife.framework.cw.skins.StartButtonSkin");
+}
+
+cw|Prompt {
+	skin-class:ClassReference("net.lanelife.framework.cw.skins.PromptSkin");
+}

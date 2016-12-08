@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 creationComplete="init()">
+	<s:layout>
+		<s:HorizontalLayout/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import mx.core.FlexGlobals;
+			
+			import net.lanelife.framework.cw.events.TrayIconEvent;
+			import net.lanelife.framework.cw.events.WindowEventDispatcher;
+			
+			protected function init():void
+			{
+				WindowEventDispatcher.getInstance().addEventListener(
+					TrayIconEvent.TRAY_ICON_CREATE, trayIconCreate
+				);
+				WindowEventDispatcher.getInstance().addEventListener(
+					TrayIconEvent.TRAY_ICON_DESTROY, trayIconDestroy
+				);
+				
+				FlexGlobals.topLevelApplication.parent.addEventListener(MouseEvent.MOUSE_DOWN, parent_mouseDownHandler);
+			}
+			
+			private function trayIconCreate(event:TrayIconEvent):void
+			{
+				if (event.trayIcon.display)
+					this.addElement(event.trayIcon);
+				else
+					iconsGroup.addElement(event.trayIcon);
+			}
+			
+			private function trayIconDestroy(event:TrayIconEvent):void
+			{
+				if (event.trayIcon.display)
+					this.removeElement(event.trayIcon);
+				else
+					iconsGroup.removeElement(event.trayIcon);
+			}
+			
+			private var displayPopup:Boolean = false;
+			
+			private function parent_mouseDownHandler(event:MouseEvent):void
+			{
+				if (!displayPopup)
+					showHiddenIconsButton.selected = false;
+			}
+			
+			protected function showHiddenIconsButton_changeHandler(event:Event):void
+			{
+				iconsContainer.addElement(iconsGroup);
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<s:TileGroup id="iconsGroup" left="12" right="12" bottom="10" top="10" verticalGap="0"
+				 visible="{showHiddenIconsButton.selected}" includeInLayout="{showHiddenIconsButton.selected}"/>
+	
+	<s:PopUpAnchor id="popUpAnchor" displayPopUp="{showHiddenIconsButton.selected}" popUpPosition="below" bottom="40">
+		<s:BorderContainer id="iconsContainer" 
+						   width="138" height="140" 
+						   backgroundAlpha="0" borderVisible="false" 
+						   mouseOver="displayPopup=true" mouseOut="displayPopup=false">
+			<s:Rect left="0" right="0" bottom="0" top="0" radiusX="5">
+				<s:stroke>
+					<s:SolidColorStroke color="#000000" alpha="0.40" weight="1" caps="square" />
+				</s:stroke>
+				<s:fill>
+					<s:SolidColor color="#ffffff" alpha="0.3"/>
+				</s:fill>
+			</s:Rect>
+			<s:Rect left="8" right="8" bottom="8" top="8" radiusX="2" alpha="0.9">
+				<s:stroke>
+					<s:SolidColorStroke color="#1a1f26" weight="1" caps="square" />
+				</s:stroke>
+				<s:fill>
+					<s:SolidColor color="#ffffff"/>
+				</s:fill>
+			</s:Rect>
+		</s:BorderContainer>
+	</s:PopUpAnchor>
+	
+	
+	<s:Group height="100%">
+		<s:ToggleButton id="showHiddenIconsButton" 
+						width="21" height="20"
+						verticalCenter="0" 
+						change="showHiddenIconsButton_changeHandler(event)"
+						skinClass="net.lanelife.framework.cw.skins.ShowHiddenIconsButtonSkin" />
+	</s:Group>
+	
+</s:Group>

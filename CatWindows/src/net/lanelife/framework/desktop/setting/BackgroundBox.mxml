@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cw:DesktopWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 verticalCenter="0" horizontalCenter="0"
+		 title="系统设置" resizable="false"
+		 width="435" height="390" xmlns:cw="net.lanelife.framework.cw.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.graphics.BitmapFillMode;
+			
+			import net.lanelife.framework.component.SkinManager;
+
+			private function apply():void {
+				
+				SkinManager.changeDesktopBackground(list.selectedItem.url);//, BitmapFillMode.CLIP);
+			}
+		]]>
+	</fx:Script>
+	<!--
+	<s:Rect left="-1" top="-1" right="-1" bottom="-1">
+		<s:stroke>
+			<s:SolidColorStroke color="#333333"/>
+		</s:stroke>
+	</s:Rect>
+	-->
+	<s:Rect height="230" left="0" right="0">
+		<s:fill>
+			<s:SolidColor color="#eeeeee"/>
+		</s:fill>
+	</s:Rect>
+	<s:Line top="230" left="0" right="0">
+		<s:stroke>
+			<s:SolidColorStroke color="#cccccc"/>
+		</s:stroke>
+	</s:Line>
+	
+	<s:Group width="324" height="208" top="10" horizontalCenter="0">
+		<s:Rect left="0" top="0" right="0" bottom="0">
+			<s:stroke>
+				<s:LinearGradientStroke rotation="90">
+					<s:GradientEntry color="#b7b7b7"/>
+					<s:GradientEntry color="#8f8f8f"/>
+					<s:GradientEntry color="#939393"/>
+				</s:LinearGradientStroke>
+			</s:stroke>
+			<s:fill>
+				<s:SolidColor color="#ffffff"/>
+			</s:fill>
+		</s:Rect>
+		<s:Image source="{list.selectedItem.url}" left="5" right="5" top="5" bottom="5" scaleMode="stretch"/>
+		<s:filters>
+			<mx:GlowFilter blurX="5" blurY="5" color="#c9c9c9"/>
+		</s:filters>
+	</s:Group>
+	
+	<s:Group height="64" bottom="35" left="19" right="19">
+		<s:List id="list" selectedIndex="0"
+				left="0" right="0" top="0" bottom="0" 
+				borderVisible="false" itemRenderer="net.lanelife.framework.desktop.setting.BackgroundItemRenderer"
+				rollOverColor="#facd89" selectionColor="#51b1e9" styleName="bglist">
+			<s:layout> 
+				<s:HorizontalLayout gap="0"/> 
+			</s:layout> 
+			<s:dataProvider> 
+				<s:ArrayCollection> 
+					<fx:Object url="1.png"/>
+					<fx:Object url="car1.jpg"/>
+					<fx:Object url="car2.jpg"/>
+					<fx:Object url="car3.jpg"/>
+					<fx:Object url="car4.jpg"/>
+					<fx:Object url="gril1.jpg"/>
+					<fx:Object url="yili01.jpg"/>
+					<fx:Object url="yili02.jpg"/>
+					<fx:Object url="yili03.jpg"/>
+					<fx:Object url="yili04.jpg"/>
+					<fx:Object url="yili05.jpg"/>
+					<fx:Object url="yili06.jpg"/>
+				</s:ArrayCollection>
+			</s:dataProvider> 
+		</s:List> 
+		
+	</s:Group>
+	
+	<s:Button label="应用"
+			  right="15" bottom="6" width="70" 
+			  click="apply()" />
+	
+</cw:DesktopWindow>

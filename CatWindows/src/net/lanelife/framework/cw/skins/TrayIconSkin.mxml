@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx" height="40" width="24">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("net.lanelife.framework.cw.TrayIcon")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="disabled" />
+		<s:State name="down" />
+		<s:State name="over" />
+		<s:State name="up" />
+	</s:states>
+	
+	<s:transitions>
+		<s:Transition fromState="up" toState="over">
+			<s:Fade alphaFrom="0" alphaTo="1" targets="{[r1,r2,r3,r4]}"/>
+		</s:Transition>
+		<s:Transition fromState="over" toState="up">
+			<s:Fade alphaFrom="1" alphaTo="0" targets="{[r1,r2,r3,r4]}"/>
+		</s:Transition>
+	</s:transitions>
+		
+	<s:Rect left="0" top="0" right="0" bottom="0" alpha="0">  
+		<s:fill>  
+			<s:SolidColor color="#ffffff" />
+		</s:fill>
+	</s:Rect>
+	
+	<s:Rect id="r1" width="1" height="34" verticalCenter="0" alpha.up="0" alpha.over="1" alpha.down="0.7">  
+		<s:fill>  
+			<s:LinearGradient rotation="90">  
+				<s:entries>  
+					<s:GradientEntry alpha="0" ratio="0" color="#05182b" />
+					<s:GradientEntry alpha="0.9" ratio="0.2" color="#05182b" />
+					<s:GradientEntry alpha="0.9" ratio="0.6" color="#05182b" />  
+					<s:GradientEntry alpha="0" ratio="1" color="#05182b" />
+				</s:entries>  
+			</s:LinearGradient>  
+		</s:fill>  
+	</s:Rect> 
+	<s:Rect id="r2" width="1" height="34" left="1" verticalCenter="0" alpha.up="0" alpha.over="1" alpha.down="0.7">  
+		<s:fill>  
+			<s:LinearGradient rotation="90">  
+				<s:entries>  
+					<s:GradientEntry alpha="0" ratio="0" color="#ffffff" />
+					<s:GradientEntry alpha="0.3" ratio="0.2" color="#ffffff" />
+					<s:GradientEntry alpha="0.3" ratio="0.6" color="#ffffff" />  
+					<s:GradientEntry alpha="0" ratio="1" color="#ffffff" />
+				</s:entries>  
+			</s:LinearGradient>  
+		</s:fill>  
+	</s:Rect> 
+	
+	<s:Image id="trayIconDisplay" width="16" height="16" left="4" verticalCenter="0"
+			 smooth="true" smoothingQuality="high" />
+	
+	<s:Rect id="r3" width="1" height="34" right="1" verticalCenter="0" alpha.up="0" alpha.over="1" alpha.down="0.7">  
+		<s:fill>  
+			<s:LinearGradient rotation="90">  
+				<s:entries>  
+					<s:GradientEntry alpha="0" ratio="0" color="#ffffff" />
+					<s:GradientEntry alpha="0.3" ratio="0.2" color="#ffffff" />
+					<s:GradientEntry alpha="0.3" ratio="0.6" color="#ffffff" />  
+					<s:GradientEntry alpha="0" ratio="1" color="#ffffff" />
+				</s:entries>  
+			</s:LinearGradient>  
+		</s:fill>  
+	</s:Rect> 
+	<s:Rect id="r4" width="1" height="34" verticalCenter="0" right="0" alpha.up="0" alpha.over="1" alpha.down="0.7">  
+		<s:fill>  
+			<s:LinearGradient rotation="90">  
+				<s:entries>  
+					<s:GradientEntry alpha="0" ratio="0" color="#05182b" />
+					<s:GradientEntry alpha="0.9" ratio="0.2" color="#05182b" />
+					<s:GradientEntry alpha="0.9" ratio="0.6" color="#05182b" />  
+					<s:GradientEntry alpha="0" ratio="1" color="#05182b" />
+				</s:entries>  
+			</s:LinearGradient>  
+		</s:fill>  
+	</s:Rect> 
+	
+	<s:Label id="labelDisplay"
+			 width="0" height="100%"
+			 maxDisplayedLines="1"
+			 verticalAlign="middle"
+			 fontFamily="宋体" color="#ffffff">
+	</s:Label>
+	
+	<!-- SkinParts
+	name=iconDisplay, type=spark.primitives.BitmapImage, required=false
+	name=labelDisplay, type=spark.core.IDisplayText, required=false
+	-->
+</s:Skin>

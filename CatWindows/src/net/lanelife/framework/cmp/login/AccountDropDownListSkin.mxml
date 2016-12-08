@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("net.lanelife.framework.cmp.login.AccountDropDownList")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="open" />
+		<s:State name="disabled" />
+		<s:State name="normal" />
+	</s:states>
+	
+	<!-- SkinParts
+	name=scroller, type=spark.components.Scroller, required=false
+	name=dropDown, type=flash.display.DisplayObject, required=false
+	name=labelDisplay, type=spark.core.IDisplayText, required=false
+	name=openButton, type=spark.components.supportClasses.ButtonBase, required=true
+	name=dropIndicator, type=mx.core.IFactory, required=false
+	name=dataGroup, type=spark.components.DataGroup, required=false
+	-->
+	
+	<s:PopUpAnchor id="popUp"  displayPopUp.normal="false" displayPopUp.open="true" includeIn="open"
+				   left="0" right="0" top="0" bottom="0" itemDestructionPolicy="auto"
+				   popUpPosition="below" popUpWidthMatchesAnchorWidth="true">
+		<s:Group id="dropDown" maxHeight="134" minHeight="22" >
+			<s:RectangularDropShadow id="dropShadow" blurX="20" blurY="20" alpha="0.45" distance="7" 
+									 angle="90" color="#5a9ed1" left="0" top="1" right="0" bottom="0"/>
+			<s:Rect id="border" left="0" right="0" top="1" bottom="0">
+				<s:stroke>
+					<s:SolidColorStroke id="borderStroke" weight="1" color="#479fcf"/>
+				</s:stroke>
+			</s:Rect>
+			<s:Rect id="background" left="1" right="1" top="2" bottom="1" >
+				<s:fill>
+					<s:SolidColor id="bgFill" color="0xFFFFFF" />
+				</s:fill>
+			</s:Rect>
+			<s:Scroller id="scroller" left="0" top="1" right="0" bottom="0" hasFocusableChildren="false" minViewportInset="1">
+				<s:DataGroup id="dataGroup" itemRenderer="net.lanelife.framework.cmp.login.AccountDropDownListItemRenderer">
+					<s:layout>
+						<s:VerticalLayout gap="0" horizontalAlign="contentJustify"/>
+					</s:layout>
+				</s:DataGroup> 
+			</s:Scroller>
+		</s:Group>
+	</s:PopUpAnchor>
+	
+	<s:Label id="labelDisplay" visible="false" /> 
+	
+	<s:TextInput id="textDisplay"
+				 left="0" right="0" top="0" bottom="0"
+				 text="请输入帐号" restrict="0-9" maxChars="18"
+				 color="{textDisplay.text=='请输入帐号' ? 0x808080 : 0x000000}"
+				 focusIn="if(textDisplay.text=='请输入帐号'){textDisplay.text=''}else{textDisplay.selectAll()}"
+				 focusOut="if(textDisplay.text==''){textDisplay.text='请输入帐号'}" /> 
+	
+	<s:Button id="openButton" width="19" right="0" top="0" bottom="0" focusEnabled="false"
+			  skinClass="net.lanelife.framework.cmp.login.AccountDropDownListButtonSkin" />
+	
+</s:Skin>

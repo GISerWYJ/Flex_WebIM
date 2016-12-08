@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cw:DesktopWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				  xmlns:s="library://ns.adobe.com/flex/spark" 
+				  xmlns:mx="library://ns.adobe.com/flex/mx" 
+				  xmlns:cw="net.lanelife.framework.cw.*" 
+				  title="关于"
+				  icon="images/logo_30x30.png"
+				  width="374" height="250" verticalCenter="0" horizontalCenter="0"
+				  minimizable="false" maximizable="false" draggable="false" resizable="false">
+	
+	<s:Image source="images/about.png"/>
+	
+	<s:Label x="10" top="70" lineHeight="22" text="CAT77 v1.0 企业沟通系统&#xd;蓝易实验室 版权所有&#xd;Copyright(C) 2011 lanelife.net. All Rights Reserved.&#xd;&#xd;谨以此作品献给小茜."/>
+	
+	<s:Button label="确定" bottom="3" right="5" click="close()"/>
+</cw:DesktopWindow>

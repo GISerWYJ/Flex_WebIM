@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Skin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		width="39" height="39">
+	<!-- host component -->
+	<fx:Metadata>
+		[HostComponent("net.lanelife.framework.cw.StartButton")]
+	</fx:Metadata>
+	
+	<!-- states -->
+	<s:states>
+		<s:State name="disabledAndSelected" stateGroups="selected" />
+		<s:State name="downAndSelected" stateGroups="selected" />
+		<s:State name="overAndSelected" stateGroups="selected" />
+		<s:State name="upAndSelected" stateGroups="selected" />
+		<s:State name="disabled" />
+		<s:State name="down" />
+		<s:State name="over" />
+		<s:State name="up" />
+	</s:states>
+	
+	<s:transitions>
+		<s:Transition fromState="up" toState="over">
+			<s:Parallel>
+				<s:Fade alphaFrom="1" alphaTo="0" target="{upImage}"/>
+				<s:Fade alphaFrom="0" alphaTo="1" target="{overImage}"/>
+			</s:Parallel>
+		</s:Transition>
+		<s:Transition fromState="over" toState="up">
+			<s:Parallel>
+				<s:Fade alphaFrom="1" alphaTo="0" target="{overImage}"/>
+				<s:Fade alphaFrom="0" alphaTo="1" target="{upImage}"/>
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+	
+	
+	<s:Rect left="0" top="0" right="0" bottom="0" alpha="0">  
+		<s:fill>  
+			<s:SolidColor color="#ffffff" />
+		</s:fill>
+	</s:Rect>
+	
+	<s:Image id="upImage" left="0" top="0" right="0" bottom="0" smooth="true"
+			 source="{hostComponent.upIcon}" visible.up="true" visible="false"/>
+	
+	<s:Image id="overImage" left="0" top="0" right="0" bottom="0" smooth="true"
+			 source="{hostComponent.overIcon}" visible.over="true" visible="false"/>
+	
+	<s:Image left="0" top="0" right="0" bottom="0" smooth="true"
+			 source="{hostComponent.downIcon}" visible.down="true" visible="false"/>
+	
+	<s:Image left="0" top="0" right="0" bottom="0" smooth="true"
+			 source="{hostComponent.selectedIcon}" visible.selected="true" visible="false"/>
+	<!-- SkinParts
+	name=iconDisplay, type=spark.primitives.BitmapImage, required=false
+	name=labelDisplay, type=spark.core.IDisplayText, required=false
+	-->
+</s:Skin>

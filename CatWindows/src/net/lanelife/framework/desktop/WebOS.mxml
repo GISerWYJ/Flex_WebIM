@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"
+		 xmlns:container="net.lanelife.framework.cw.container.*"
+		 xmlns:components="net.lanelife.cat77.view.components.*"
+		 preloader="net.lanelife.framework.cw.preloaders.DownloadProgressBar"
+		 creationComplete="application_creationCompleteHandler(event)" xmlns:desktop="net.lanelife.framework.desktop.*">
+
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.events.FlexEvent;
+			import mx.graphics.BitmapFillMode;
+			
+			import net.lanelife.framework.app.AppEvent;
+			import net.lanelife.framework.app.AppManager;
+			import net.lanelife.framework.component.SkinManager;
+			import net.lanelife.framework.desktop.basenodes.XBaseNode;
+			import net.lanelife.framework.util.Map;
+			
+			[Bindable]
+			/**
+			 * 全局窗口填充图。
+			 * @return 
+			 * 
+			 */
+			public static var BACKGROUND_BITMAP:Object;
+			
+			/**
+			 * 背景填充模型
+			 */
+			[Bindable]
+			public static var BACKGROUND_BITMAP_FILLMODEL:Object = BitmapFillMode.SCALE;
+			
+			// 桌面图标项
+			private var _deskItems:ArrayCollection;
+			
+			public function set deskItems(value:ArrayCollection):void {
+				_deskItems = value;
+			}
+			
+			[Bindable]
+			public var desklist:ArrayList = new ArrayList();
+			
+			protected function application_creationCompleteHandler(event:FlexEvent):void
+			{
+				/* for each(var item:* in _deskItems) {
+					deskItemContainer.addElement(item);
+				} */
+				
+				AppManager.onLoadApp(function(e:AppEvent):void {
+					
+					var apps:Map = e.apps;
+					
+					for each(var app:* in apps.keys) {// 将所有安装的app添加到桌面
+						
+						/* 原先是add DeskItem
+						var deskItem:DeskItem = new DeskItem;
+						deskItem.label = app;
+						deskItem.addEventListener(MouseEvent.CLICK, function(event:*):void {
+							AppManager.getApp(app).start();
+						});
+						
+						deskItemContainer.addElement(deskItem); */
+						
+						//注册view
+						var deskItem:XBaseNode = new DeskItem;
+						deskItem.imgURL="images/icon.png";
+						deskItem.label = app;
+						(function(appName:String, item:XBaseNode):void{
+							
+							item.deskFunction = function(event:*):void {
+								AppManager.getApp(appName).start();
+							};
+						})(app, deskItem);
+						
+						desklist.addItem(deskItem);
+					}
+					
+					container.deskList=desklist;
+				});
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:Rect id="backgroundRect" width="100%" height="100%">
+		<s:fill>
+			<s:BitmapFill source="{BACKGROUND_BITMAP}" fillMode="{BACKGROUND_BITMAP_FILLMODEL}"/>
+		</s:fill>
+	</s:Rect>
+	
+	<!--<s:VGroup id="deskItemContainer" left="10" top="10" gap="10" />-->
+	
+	<container:WindowsContainer id="container" left="0" top="0" right="0" bottom="40"/>
+	
+	<desktop:Taskbar id="taskbar" width="100%" height="40" bottom="0" />
+	
+</s:Application>

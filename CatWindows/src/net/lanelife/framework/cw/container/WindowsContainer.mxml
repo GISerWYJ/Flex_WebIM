@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer  xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					xmlns:s="library://ns.adobe.com/flex/spark" 
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					backgroundAlpha="0"
+					creationComplete="init()">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayList;
+			import mx.controls.Menu;
+			import mx.events.MenuEvent;
+			import mx.managers.PopUpManager;
+			
+			import net.lanelife.framework.cw.events.WindowEvent;
+			import net.lanelife.framework.cw.events.WindowEventDispatcher;
+			import net.lanelife.framework.desktop.basenodes.XBaseNode;
+			import net.lanelife.framework.desktop.events.CanvasSelectionEvent;
+			import net.lanelife.framework.desktop.events.DeskEvent;
+			import net.lanelife.framework.desktop.mediators.BaseCanvasMediator;
+			import net.lanelife.framework.desktop.mediators.MainApplicationFacade;
+			import net.lanelife.framework.desktop.setting.BackgroundBox;
+			import net.lanelife.framework.desktop.util.RightClickManager;
+			
+			import spark.primitives.Graphic;
+			private var mediator:BaseCanvasMediator;
+			private var _isDesk:Boolean=true;
+			private var selectionRectangle:Graphic;//框选的绘制类
+			private var beginSelectionPoint:Point;//开始框选的坐标点
+			private var endSelectionPoint:Point;//结束框选的坐标点
+			public var isSelection:Boolean = false;//是否处于框选状态
+			/**右键菜单相关*/
+			protected var rightClickRegisted:Boolean = false; 
+			/**
+			 * 右键菜单
+			 * */
+			private  var _menu:Menu;
+			/**
+			 * 右键菜单栏目
+			 **/
+			private var _menuItems:Array=new Array();
+			/**
+			 * 初始化桌面操作
+			 **/
+			// window窗体是否采用popup方式显示
+			public var popupable:Boolean = false;
+			private var _deskList:ArrayList;
+			/**
+			 * <p>
+			 * 桌面图标对象集合
+			 * </p>
+			 * @param ArrayList ArrayList放入XBaseNode对象也可以是XBaseNode的子对象
+			 * @author xusenhai@163.com
+			 * @time 2011.7.16
+			 **/
+			public function get deskList():ArrayList
+			{
+				return _deskList;
+			}
+			/**
+			 * <p>
+			 * 桌面图标对象集合
+			 * </p>
+			 * @param ArrayList ArrayList放入XBaseNode对象也可以是XBaseNode的子对象
+			 * @author xusenhai@163.com
+			 * @time 2011.7.16
+			 **/
+			public function set deskList(value:ArrayList):void
+			{
+				_deskList = value;
+				initapp();
+			}
+			/**
+			 * <p>
+			 * 通过BaseCanvasMediator中介，生成桌面图标
+			 * </p>
+			 * @author xusenhai@163.com
+			 * @time 2011.7.16
+			 **/
+			protected function initapp():void{
+				//注册view
+				MainApplicationFacade.registMediator(new BaseCanvasMediator(this));
+				mediator=(MainApplicationFacade.retrieveMediator(BaseCanvasMediator.NAME) as BaseCanvasMediator);
+				var xT:Number, yT:Number;
+				var i:int,j:int=0;
+				var node:XBaseNode;
+				for (var n:int;n<_deskList.length;n++){
+					node=_deskList.getItemAt(n) as XBaseNode;
+					if(!node.doubleClickEnabled)
+						node.doubleClickEnabled=true;
+					node.addEventListener(MouseEvent.DOUBLE_CLICK,node.deskFunction);
+					xT=node.width*j;
+					yT=node.height*i;
+					xT=xT<0?0:xT;
+					yT=yT<0?0:yT;
+					if (xT > this.width){
+						xT=this.width - node.width;
+					}
+					if (yT+node.height>this.height){
+						j++;
+						i=0;
+						xT=node.width*j;
+						yT=node.height*i;
+					}
+					node.x=xT;
+					node.y=yT; 
+					mediator.addNode(node);
+					i++;
+					if(node!=null)
+						node=null;
+				}
+				this.addEventListener(DeskEvent.NODE_HX,formateNode);
+			}
+			//让选中的节点所包含的字节点重新排列
+			protected function formateNode(e:DeskEvent):void
+			{
+				if(mediator==null)
+					mediator=(MainApplicationFacade.retrieveMediator(BaseCanvasMediator.NAME) as BaseCanvasMediator);
+				mediator.formateNode(e.xh);
+			}
+			protected function init():void
+			{
+				WindowEventDispatcher.getInstance().addEventListener(
+					WindowEvent.WINDOW_CREATE, windowCreate
+				);
+				WindowEventDispatcher.getInstance().addEventListener(
+					WindowEvent.WINDOW_DEPTH_CHANGE, windowDepthChange
+				);
+				WindowEventDispatcher.getInstance().addEventListener(
+					WindowEvent.WINDOW_DESTROY, windowDestroy
+				);
+				//判断是否启用桌面
+				if(isDesk){
+					selectionRectangle = new Graphic();
+					beginSelectionPoint = new Point();
+					endSelectionPoint = new Point();
+					this.addElement(selectionRectangle);
+					this.addEventListener(MouseEvent.MOUSE_DOWN,onMouseDown);
+					//params.wmode = "opaque";//屏蔽系统右键菜单的关键
+					if (!rightClickRegisted)  
+					{  
+						RightClickManager.regist();  
+						rightClickRegisted = true;  
+					} 
+					addEventListener(RightClickManager.RIGHT_CLICK,RightClickHandler);
+					addEventListener(MouseEvent.CLICK,removeMenu);
+					//注册view
+				}
+			}
+			private function RightClickHandler(event:ContextMenuEvent):void
+			{
+				if(menu!=null)  
+				{  
+					menu.hide();
+					menu=null;  
+				}  
+				menuItems=new Array();
+				
+				var menuItem:Object;
+				menuItem = new Object;  
+				menuItem.label = '刷新'; //菜单项名称
+				menuItems.push(menuItem);
+				
+				menuItem = new Object;  
+				menuItem.label = '竖排列图标'; //菜单项名称
+				menuItems.push(menuItem);
+				
+				menuItem = new Object;  
+				menuItem.label = '横排列图标'; //菜单项名称
+				menuItems.push(menuItem);
+				
+				menuItem = new Object;  
+				menuItem.label = '设置';
+				menuItems.push(menuItem);
+				
+				menu = Menu.createMenu(this, menuItems, false);
+				menu.variableRowHeight = true;
+				menu.addEventListener(MenuEvent.ITEM_CLICK, tree_MenuItemSelected);  
+				
+				var point:Point = new Point(mouseX,mouseY);  
+				point = localToGlobal(point); 
+				menu.show(point.x,point.y);  //显示右键菜单
+			}
+			private function removeMenu(event:MouseEvent):void 
+			{  
+				if(menu!=null)  
+				{  
+					menu.hide();
+					menu=null;  
+				}  
+			}
+			private function tree_MenuItemSelected(event:MenuEvent):void
+			{
+				var menuItem:Object = event.menu.selectedItem as Object; 
+				switch(menuItem.label)
+				{
+					case "刷新":
+						break;
+					case "竖排列图标":
+						this.dispatchEvent(new DeskEvent(DeskEvent.NODE_HX,"V"));
+						break;
+					case "横排列图标":
+						this.dispatchEvent(new DeskEvent(DeskEvent.NODE_HX,"H"));
+						break;
+					case "设置":
+						new BackgroundBox().show();
+						break;
+					default:
+						break;
+				}
+				
+			}
+			private function onMouseDown(e:MouseEvent):void
+			{
+				trace("dafdsasdfasdfasf");
+				this.setElementIndex(selectionRectangle,numElements-1);
+				//开始绘制选择框
+				beginSelectionPoint.x = mouseX;
+				beginSelectionPoint.y = mouseY;
+				this.addEventListener(MouseEvent.MOUSE_MOVE,drawSelectionRectangle);
+				this.addEventListener(MouseEvent.MOUSE_UP,stopDrawSelectionRectangle);
+			}
+			/**
+			 * 绘制选择框,如果要绘制不同风格的选择框,可选择继承此类并重写此方法. 
+			 * @param e
+			 */
+			protected function drawSelectionRectangle(e:MouseEvent = null):void
+			{
+				isSelection = true;
+				selectionRectangle.graphics.clear();
+				selectionRectangle.graphics.beginFill(0x12C3FF,.3);
+				selectionRectangle.graphics.lineStyle(.5, 0x00cc00, 1);
+				selectionRectangle.graphics.drawRect(
+					beginSelectionPoint.x, 
+					beginSelectionPoint.y,
+					this.mouseX - beginSelectionPoint.x,
+					this.mouseY - beginSelectionPoint.y
+				);
+				selectionRectangle.graphics.endFill();
+			}
+			protected function stopDrawSelectionRectangle(e:MouseEvent):void
+			{
+				selectionRectangle.graphics.clear();
+				removeEventListener(MouseEvent.MOUSE_MOVE,drawSelectionRectangle);
+				removeEventListener(MouseEvent.MOUSE_UP,stopDrawSelectionRectangle);
+				this.endSelectionPoint.x = mouseX;
+				this.endSelectionPoint.y = mouseY;
+				this.isSelection = false;
+				this.dispatchEvent(new CanvasSelectionEvent(CanvasSelectionEvent.SELECTION_END,this.beginSelectionPoint,this.endSelectionPoint));
+			}
+			private function windowCreate(event:WindowEvent):void
+			{
+				if(popupable) {
+					if (event.window.parent == null)  
+					{ 
+						PopUpManager.addPopUp(event.window, this);
+						PopUpManager.centerPopUp(event.window);
+					} else {
+						PopUpManager.bringToFront(event.window);           
+					}
+				} else {
+					this.addElement(event.window);
+				}
+			}
+			private function windowDepthChange(event:WindowEvent):void
+			{
+				if(popupable) {
+					return;
+				}
+				// 获取容器中的最大depth
+				var d:Number = 0;
+				for (var i:int; i < this.numElements; i++)
+				{
+					if (this.getElementAt(i).depth > d)
+					{
+						d = this.getElementAt(i).depth;
+					}
+				}
+				// 设置当前事件源对象depth 为最大depth+1，则其会显示在最上面
+				event.window.depth = d + 1;
+			}
+			private function windowDestroy(event:WindowEvent):void
+			{
+				if(popupable) {
+					PopUpManager.removePopUp(event.window);
+				} else {
+					this.removeElement(event.window);
+				}
+			}
+			public function get isDesk():Boolean
+			{
+				return _isDesk;
+			}
+			
+			public function set isDesk(value:Boolean):void
+			{
+				_isDesk = value;
+			}
+			public function get menuItems():Array
+			{
+				return _menuItems;
+			}
+			
+			public function set menuItems(value:Array):void
+			{
+				_menuItems = value;
+			}
+			
+			public function get menu():Menu
+			{
+				return _menu;
+			}
+			
+			public function set menu(value:Menu):void
+			{
+				_menu = value;
+			}
+		]]>
+	</fx:Script>
+	
+</s:BorderContainer>
